@@ -28,7 +28,8 @@ The most expensive cost is the one you cannot see — make it visible.
 ## Install
 
 ```sh
-dsh plugin --profile web add github:huangyuheng/dsh-token-use
+dsh plugin --profile web add dsh-token-use
+# or from source: dsh plugin --profile web add github:huangyuheng/dsh-token-use
 ```
 
 Restart `dsh web` afterwards. To install from an unpacked zip instead:
@@ -62,7 +63,7 @@ pnpm run build        # regenerate client/client.js (= tree-shaken ECharts + cli
 
 `client/client.js` is a committed build artifact, so users install nothing and build nothing.
 
-npm metadata (`repository` / `files` / `LICENSE`) is ready but **publishing is deferred**: the plugin currently installs from GitHub (`dsh plugin --profile web add github:huangyuheng/dsh-token-use`). Run `npm publish` whenever that changes.
+Published to npm as `dsh-token-use`; its `repository` field points back here, which is how the official market links the package and shows download counts. To cut a release: bump `version`, run `npm publish`, and users pick it up with `dsh plugin update` or the market's update button.
 
 ## Field definitions
 

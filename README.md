@@ -28,7 +28,8 @@ DeepSeek Harness 实时 Token 用量插件：安装后在 **设置 → Token 用
 ## 安装
 
 ```sh
-dsh plugin --profile web add github:huangyuheng/dsh-token-use
+dsh plugin --profile web add dsh-token-use
+# 或从源码安装：dsh plugin --profile web add github:huangyuheng/dsh-token-use
 ```
 
 重启 `dsh web` 后生效。下载 zip 解压后的本地目录安装：
@@ -62,7 +63,7 @@ pnpm run build        # 重新生成 client/client.js（= 精简 ECharts + clien
 
 `client/client.js` 是已提交的构建产物，使用者无需安装依赖或构建。
 
-npm 发布元数据（`repository` / `files` / `LICENSE`）已备好但**暂不发布**：当前只通过 GitHub 安装（`dsh plugin --profile web add github:huangyuheng/dsh-token-use`）。需要时执行 `npm publish` 即可。
+已发布到 npm（包名 `dsh-token-use`，`repository` 指回本仓库，因此官方市场会自动关联并显示下载量）。升级流程：改 `version` → `npm publish` → 用户 `dsh plugin update` 或市场一键更新。
 
 ## 字段口径
 
