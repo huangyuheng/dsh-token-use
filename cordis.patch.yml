@@ -5,3 +5,10 @@
       config:
         endpoint: /dsh-token-use
         scanAtBoot: true
+        # Official price book: one fetch per day at 12:00 local time, cached
+        # under $DSH_HOME/dsh-token-use/pricing.json. `enabled: false` keeps the
+        # plugin offline; `currency: USD` reads the English pricing page.
+        pricing:
+          enabled: true
+          currency: CNY
+          refreshHour: 12
