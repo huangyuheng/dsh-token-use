@@ -2,6 +2,8 @@
 
 [English](README.en.md) | 中文
 
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com)
+
 DeepSeek Harness 实时 Token 用量插件：安装后在 **设置 → Token 用量** 查看用量（自带设置侧边栏一级入口），页面每 5 秒刷新（页面隐藏时暂停，零轮询浪费）。
 
 ## 功能
@@ -26,7 +28,7 @@ DeepSeek Harness 实时 Token 用量插件：安装后在 **设置 → Token 用
 ## 安装
 
 ```sh
-dsh plugin --profile web add git+https://github.com/huangyuheng/dsh-token-use.git
+dsh plugin --profile web add github:huangyuheng/dsh-token-use
 ```
 
 重启 `dsh web` 后生效。下载 zip 解压后的本地目录安装：

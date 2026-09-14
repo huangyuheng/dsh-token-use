@@ -2,6 +2,8 @@
 
 [中文](README.md) | English
 
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com)
+
 A real-time token usage plugin for DeepSeek Harness: install it, then read your usage in **Settings → Token usage** (the plugin adds its own top-level Settings entry). The page refreshes every 5 seconds and stays quiet while the tab is hidden — no wasted polling.
 
 ## Features
@@ -26,7 +28,7 @@ The most expensive cost is the one you cannot see — make it visible.
 ## Install
 
 ```sh
-dsh plugin --profile web add git+https://github.com/huangyuheng/dsh-token-use.git
+dsh plugin --profile web add github:huangyuheng/dsh-token-use
 ```
 
 Restart `dsh web` afterwards. To install from an unpacked zip instead:
