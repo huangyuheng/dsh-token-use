@@ -68,6 +68,7 @@ npm metadata (`repository` / `files` / `LICENSE`) is ready but **publishing is d
 - `cacheRead` / `cacheWrite` — prompt cache read/write tokens (the API counts cache reads on the input side for billing).
 - `reasoning` — reasoning tokens.
 - Model attribution — the model of the session's most recent `request/header`; small calls that carry no usage record (title generation, for example) are not counted.
+- Project attribution — the `cwd` in the session's creation header (live events read `session.header.cwd`, history reads the log header); subagent and forked sessions inherit their parent's project; usage that cannot be attributed yet is held and back-filled as soon as it resolves, only reaching `(no cwd)` after 30 seconds. |
 
 ## Compatibility
 
@@ -77,7 +78,7 @@ These differences are already handled before anyone else installs the plugin:
 | --- | --- |
 | Runtime | Requires **dsh web ≥ 0.1.0-rc.6** (the settings sidebar `settings.section` slot). The host half uses Node built-ins only; zstd decoding uses `node:zlib` (built in from Node 22.15, and dsh itself requires ^22.19 \|\| >=24, so it is always present). |
 | Data directory | Resolved from `$DSH_HOME` (environment variable, defaulting to `~/.dsh`), matching dsh's own `dsh-home-paths` rules; a custom home works too. The plugin is **read-only** — it writes nothing. |
-| Session formats | Handles both `session.jsonl.zstd` (multi-frame zstd with checksums) and plaintext `session.jsonl`; `.bak` / `.corrupt-*` copies are skipped, and a single corrupt frame only raises `scan.skipped` without affecting the other sessions. |
+| Session formats | Handles `session.jsonl[.zstd]` (multi-frame zstd with checksums), the versioned next generation `session.v<N>.jsonl[.zstd]` that dsh leaves alongside the old file after a migration, and plaintext `.jsonl`. A session is read from its **highest-version generation only**, so a migration never double counts; `.bak`, `.corrupt-*` and `session.lock` are skipped, and a single corrupt frame only raises `scan.skipped`. |
 | Directory layout | Follows the official JSONL persistence layout `sessions/<project dir>/<session dir>/`, reading every session independently. |
 | Accounting | Some providers (the pi-ai adapter, for instance) fold reasoning tokens into output, so a `reasoning` column of 0 is normal there; calls that record no `usage` (title generation, web search) are not counted; model attribution uses the session's most recent `request/header`. |
 | Network | The endpoint is **loopback-only** by default. On a LAN deployment (trustedHosts configured) set `allowRemote: true` in the profile patch; it still accepts same-origin requests only, and the client names the reason when it sees a 403. |

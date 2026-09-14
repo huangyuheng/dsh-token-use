@@ -68,6 +68,7 @@ npm 发布元数据（`repository` / `files` / `LICENSE`）已备好但**暂不�
 - `cacheRead` / `cacheWrite`：提示词缓存读/写 tokens（API 计费口径中缓存读也计入输入侧）。
 - `reasoning`：推理 tokens。
 - 模型归属：该会话最近一次 `request/header` 的 model；标题生成等无 usage 记录的小调用不在统计内。
+- 项目归属：取会话创建头里的 `cwd`（实时事件读 `session.header.cwd`，历史扫描读日志头）；子会话/分叉会话继承父会话的项目；极少数暂时无法归属的调用先挂起，归属明确后自动回填，30 秒仍未明确才记入 `(no cwd)`。
 
 ## 兼容性
 
@@ -77,7 +78,7 @@ npm 发布元数据（`repository` / `files` / `LICENSE`）已备好但**暂不�
 | --- | --- |
 | 运行环境 | 需要 **dsh web ≥ 0.1.0-rc.6**（设置侧边栏 `settings.section` 槽位）。宿主侧只用 Node 内置模块；zstd 解压依赖 `node:zlib`（Node ≥ 22.15 内置，dsh 自身要求 ^22.19 \|\| >=24，故必然满足）。 |
 | 数据目录 | 按 `$DSH_HOME`（环境变量，缺省 `~/.dsh`）解析，与 dsh 官方 `dsh-home-paths` 规则一致；自定义 home 同样有效。插件**只读**，不写任何文件。 |
-| 会话格式 | 同时支持 `session.jsonl.zstd`（多帧 zstd，含 checksum）与明文 `session.jsonl`；`.bak`/`.corrupt-*` 备份自动跳过；个别损坏帧只计入 `scan.skipped`，不影响其余会话。 |
+| 会话格式 | 同时支持 `session.jsonl[.zstd]`（多帧 zstd，含 checksum）、带版本号的新一代 `session.v<N>.jsonl[.zstd]`（dsh 迁移后会与旧文件并存），以及明文 `.jsonl`；同一会话**只读最高版本那一代**，不会重复计数；`.bak`/`.corrupt-*`/`session.lock` 自动跳过，个别损坏帧只计入 `scan.skipped`。 |
 | 目录布局 | 兼容官方 JSONL 持久层的 `sessions/<项目目录>/<会话目录>/` 结构；会话按项目目录、会话 ID 独立读取。 |
 | 统计口径 | 部分 provider（如 pi-ai 适配）会把推理 token 并入输出，此时「推理」列为 0 属正常；标题生成、联网搜索等不落 `usage` 的调用不计入；模型归属取该会话最近一次 `request/header`。 |
 | 网络访问 | 接口默认**仅回环**。局域网部署（配置了 trustedHosts）时在 profile patch 里开 `allowRemote: true`，且仍只接受同源请求；客户端遇到 403 会直接提示原因。 |
