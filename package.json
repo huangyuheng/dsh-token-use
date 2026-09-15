@@ -1,6 +1,6 @@
 {
   "name": "dsh-token-use",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Real-time token usage and cost dashboard for DeepSeek Harness — live totals (input/output/cache/reasoning), estimated spend per model/day/project from DeepSeek's official prices (refreshed daily, peak/off-peak aware), model/day/month/project filters and a smooth trend chart. · 实时 Token 用量与消费金额仪表盘：按模型/按天/按月/按项目查看用量与估算金额（取 DeepSeek 官网定价，每日自动更新，区分高峰/空闲），附趋势曲线。",
   "keywords": [
     "dsh",
