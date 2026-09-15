@@ -84,6 +84,14 @@ pnpm run build        # regenerate client/client.js (= tree-shaken ECharts + cli
 
 `client/client.js` is a committed build artifact, so users install nothing and build nothing.
 
+**Development loop** (with this repo linked into a profile: `dsh plugin --profile web add /path/to/dsh-token-use`):
+
+- Edit `client/src.js` → `pnpm run build` → **the panel in the browser hot-reloads by itself** (the host stat-polls every plugin row's client bundle, pushes `rebuilt` over the SSE channel `/plugins/events`, and the browser swaps it in) — no `dsh web` restart and no page refresh; measured swap latency is under a second.
+- Edit `lib/*.js` (the host half, e.g. `pricing.js`) → still needs a `dsh web` restart.
+- Hot reload requires an **idempotent `apply()`**: a reload brings a new fiber in, and re-registering the same locale namespace or slot on top of the previous one throws, which takes the whole settings section down until the page is refreshed. The dictionaries, the rail stylesheet and the `settings.section` registration here all take over from the previous fiber, so reloads are safe.
+
+The UI is built with DSH's own component library `@deepseek-ai/dsh-client-ui-primitives` (`Button` / `Pill` / `Input` / `Menu` / `Tooltip` / `StateDot` and its icon set): a packaged plugin just `require`s it, and each control degrades to a native one on a shell that predates it. When previewing a dynamic cordis plugin in creator mode — where external imports are unavailable — use `window.__DSH_MODULES__.import("@deepseek-ai/dsh-client-ui-primitives")` instead (the module is one of the shell's static modules; a normal Web GUI has no `window.__DSH_MODULES__`).
+
 Published to npm as `dsh-token-use`; its `repository` field points back here, which is how the official market links the package and shows download counts. To cut a release: bump `version`, run `npm publish`, and users pick it up with `dsh plugin update` or the market's update button.
 
 ## Field definitions

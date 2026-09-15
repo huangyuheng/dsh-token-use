@@ -27,18 +27,48 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
   var h = react.createElement;
 
   /**
-   * The app's own floating tooltip, when this build exposes it: it positions in
-   * viewport coordinates, clamps to the window and flips sides, so it is never
-   * clipped by the settings panel. Older builds fall back to the title
-   * attribute, which the browser draws itself.
+   * The DSH UI primitives: controls, icons and the floating layers every other
+   * plugin builds with, so this panel uses the shell's own components instead of
+   * re-inventing them. A packaged plugin resolves the module like any dependency
+   * (it is one of the shell's static modules); when a shell predates a component
+   * the small fallbacks below keep the panel usable rather than blank.
    */
-  var tooltip = null;
+  var ui = {};
   try {
-    var primitives = require("@deepseek-ai/dsh-client-ui-primitives");
-    if (primitives !== null && typeof primitives === "object" && typeof primitives.Tooltip === "function") tooltip = primitives.Tooltip;
+    ui = require("@deepseek-ai/dsh-client-ui-primitives") || {};
   } catch (error) {
-    tooltip = null;
+    ui = {};
   }
+  var component = function (name, fallback) {
+    return typeof ui[name] === "function" ? ui[name] : fallback;
+  };
+  /**
+   * Tooltip is the right layer for the ⓘ: it positions in viewport coordinates,
+   * clamps to the window and flips sides, so an anchor at the panel's right edge
+   * still shows the whole note. (HoverCard always opens to the *right* of its
+   * anchor and never clamps, so there it gets cut off by the window.)
+   */
+  var tooltip = component("Tooltip", null);
+  var stateDot = component("StateDot", null);
+  var menu = component("Menu", null);
+  var icon = function (name) {
+    return typeof ui[name] === "function" ? ui[name] : null;
+  };
+  var iconQuestion = icon("IconQuestionOutline14");
+  var iconChevron = icon("IconChevronDownOutline14");
+  var iconRefresh = icon("IconRefreshOutline14");
+  var iconGauge = icon("IconGaugeOutline16");
+  var iconTrend = icon("IconDataOutline16");
+  /** Chip and Button degrade into styled native controls on an older shell. */
+  var chip = component("Pill", function (props) {
+    return h("button", { type: "button", className: "dshtu_seg", "data-on": props.active === true, onClick: props.onClick, disabled: props.disabled === true }, props.children);
+  });
+  var button = component("Button", function (props) {
+    return h("button", { type: "button", className: "dshtu_btn", onClick: props.onClick, disabled: props.disabled === true }, props.icon, props.children);
+  });
+  var input = component("Input", function (props) {
+    return h("input", { type: props.type, value: props.value, onChange: props.onChange, className: "dshtu_input" });
+  });
 
   var NS = "settings.tokenUsage";
   var inject = ["slots", "locale"];
@@ -86,6 +116,8 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     auxiliaryNote: "另有 {count} 次辅助调用（{detail}）只计次数、不计金额：token 数在服务端，本地取不到。",
     auxSearch: "联网搜索",
     auxTitle: "会话标题",
+    copy: "复制说明",
+    copied: "已复制",
     reasonExcluded: "非 DeepSeek 模型",
     reasonUnmatched: "未匹配到官方定价",
     unitOffPeak: "空闲",
@@ -142,6 +174,8 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     auxiliaryNote: "A further {count} auxiliary calls ({detail}) are counted but not priced: their tokens exist only server-side.",
     auxSearch: "web search",
     auxTitle: "session titles",
+    copy: "Copy note",
+    copied: "Copied",
     reasonExcluded: "not a DeepSeek model",
     reasonUnmatched: "no matching official price",
     unitOffPeak: "off-peak",
@@ -156,7 +190,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     retry: "Retry"
   };
 
-  var css = ".dshtu_wrap{max-width:860px;display:flex;flex-direction:column;gap:14px;padding:2px 2px 4px;color:var(--dsw-alias-label-primary);font-size:13px}.dshtu_card{background:var(--dsw-alias-bg-layer-3);border-radius:14px;box-shadow:var(--dsw-elevation-stroke);padding:14px 16px}.dshtu_bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_bar label{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_bar select,.dshtu_bar input{border:.5px solid var(--dsw-alias-border-l4);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;border-radius:8px;padding:4px 8px;font-size:12.5px}.dshtu_bar select{width:168px;text-overflow:ellipsis;white-space:nowrap}.dshtu_field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_seg{display:inline-flex;border:.5px solid var(--dsw-alias-border-l4);border-radius:8px;overflow:hidden}.dshtu_seg button{border:0;background:0 0;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;padding:4px 10px;font-size:12.5px}.dshtu_seg button[data-on=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.dshtu_totalsMeta{margin-top:12px}.dshtu_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:8px}.dshtu_stat{background:var(--dsw-alias-bg-module-platform);border-radius:10px;padding:10px 12px}.dshtu_stat b{display:block;font-size:16px;line-height:24px;font-variant-numeric:tabular-nums}.dshtu_stat span{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_stat[data-main=true]{background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 12%,var(--dsw-alias-bg-module-platform))}.dshtu_stat[data-main=true] b{color:var(--dsw-alias-state-business-primary);font-size:20px}.dshtu_table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.dshtu_table th,.dshtu_table td{text-align:right;padding:6px 8px;border-bottom:.5px solid var(--dsw-alias-border-l2);font-weight:400}.dshtu_table th:first-child,.dshtu_table td:first-child{text-align:left}.dshtu_table th{color:var(--dsw-alias-label-tertiary);font-size:12px;white-space:nowrap}.dshtu_table td:first-child{overflow-wrap:anywhere;max-width:300px;color:var(--dsw-alias-label-secondary)}.dshtu_meta{color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}.dshtu_err{color:var(--dsw-alias-state-error-primary);display:flex;align-items:center;gap:10px}.dshtu_err button{border:.5px solid var(--dsw-alias-border-l3);color:var(--dsw-alias-label-primary);font:inherit;cursor:pointer;background:0 0;border-radius:6px;padding:4px 10px}.dshtu_chart{width:100%;height:260px}.dshtu_info{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:15px;height:15px;margin-left:5px;border:.5px solid var(--dsw-alias-border-l3);border-radius:50%;color:var(--dsw-alias-label-tertiary);font-size:9px;font-style:normal;line-height:1;cursor:help}.dshtu_info:hover{color:var(--dsw-alias-state-business-primary);border-color:var(--dsw-alias-state-business-primary)}.dshtu_pop{display:block;max-width:420px;font-size:12px;font-weight:400;line-height:18px;text-align:left;white-space:normal}.dshtu_pop .dshtu_sep{margin:0 5px;opacity:.55}.dshtu_nd{color:var(--dsw-alias-label-tertiary)}";
+  var css = ".dshtu_wrap{max-width:860px;display:flex;flex-direction:column;gap:14px;padding:2px 2px 4px;color:var(--dsw-alias-label-primary);font-size:13px}.dshtu_card{background:var(--dsw-alias-bg-layer-3);border-radius:14px;box-shadow:var(--dsw-elevation-stroke);padding:14px 16px}.dshtu_bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_bar label{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_bar .dshtu_select,.dshtu_bar .dshtu_input{border:.5px solid var(--dsw-alias-border-l4);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;border-radius:8px;padding:4px 8px;font-size:12.5px}.dshtu_bar .dshtu_select{width:168px;text-overflow:ellipsis;white-space:nowrap}.dshtu_chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.dshtu_subBar{margin-top:12px}.dshtu_pick{display:inline-flex;align-items:center;gap:4px;max-width:230px}.dshtu_pickLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dshtu_metaIcon{display:inline-flex;align-items:center;margin-right:5px;vertical-align:-2px;color:var(--dsw-alias-label-tertiary)}.dshtu_cardTitle{display:inline-flex;align-items:center}.dshtu_foot{display:flex;align-items:center;gap:6px}.dshtu_statLabel{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.dshtu_field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_seg{display:inline-flex;border:.5px solid var(--dsw-alias-border-l4);border-radius:8px;overflow:hidden}.dshtu_seg button{border:0;background:0 0;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;padding:4px 10px;font-size:12.5px}.dshtu_seg button[data-on=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.dshtu_totalsMeta{margin-top:12px}.dshtu_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:8px}.dshtu_stat{background:var(--dsw-alias-bg-module-platform);border-radius:10px;padding:10px 12px}.dshtu_stat b{display:block;font-size:16px;line-height:24px;font-variant-numeric:tabular-nums}.dshtu_stat span{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_stat[data-main=true]{background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 12%,var(--dsw-alias-bg-module-platform))}.dshtu_stat[data-main=true] b{color:var(--dsw-alias-state-business-primary);font-size:20px}.dshtu_table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.dshtu_table th,.dshtu_table td{text-align:right;padding:6px 8px;border-bottom:.5px solid var(--dsw-alias-border-l2);font-weight:400}.dshtu_table th:first-child,.dshtu_table td:first-child{text-align:left}.dshtu_table th{color:var(--dsw-alias-label-tertiary);font-size:12px;white-space:nowrap}.dshtu_table td:first-child{overflow-wrap:anywhere;max-width:300px;color:var(--dsw-alias-label-secondary)}.dshtu_meta{color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}.dshtu_err{color:var(--dsw-alias-state-error-primary);display:flex;align-items:center;gap:10px}.dshtu_chart{width:100%;height:260px}.dshtu_info{display:inline-flex;align-items:center;justify-content:center;margin-left:6px;color:var(--dsw-alias-label-tertiary);cursor:help}.dshtu_info:hover{color:var(--dsw-alias-state-business-primary)}.dshtu_pop{display:block;max-width:420px;font-size:12px;font-weight:400;line-height:18px;text-align:left;white-space:normal}.dshtu_pop .dshtu_sep{margin:0 5px;opacity:.55}.dshtu_nd{color:var(--dsw-alias-label-tertiary)}";
 
   function trimNum(v, decimals) {
     var f = v.toFixed(decimals);
@@ -212,6 +246,68 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     return idx >= 0 ? (text.slice(idx + 1) || text) : text;
   }
 
+  /** A row of the shell's pills for one small enum (range, unit, chart window). */
+  function chips(options, active, onPick) {
+    return options.map(function (option) {
+      return h(chip, {
+        key: option.value,
+        active: option.value === active,
+        onClick: function () { onPick(option.value); }
+      }, option.label);
+    });
+  }
+
+  /**
+   * Model filter. The shell's Menu (the same popover the composer picks models
+   * with) anchored on a pill; a styled native select on a shell without it.
+   */
+  function ModelPicker(props) {
+    var t = props.t;
+    var _a = useState(false), open = _a[0], setOpen = _a[1];
+    if (menu === null) {
+      return h("select", {
+        className: "dshtu_select",
+        value: props.model,
+        onChange: function (event) { props.onChange(event.target.value); }
+      }, [h("option", { key: "", value: "" }, t("modelAll"))].concat(props.models.map(function (name) {
+        return h("option", { key: name, value: name }, name);
+      })));
+    }
+    var items = [{ id: "", label: t("modelAll") }].concat(props.models.map(function (name) {
+      return { id: name, label: name };
+    }));
+    return h(menu, {
+      open: open,
+      align: "start",
+      side: "bottom",
+      portal: true,
+      compact: true,
+      items: items,
+      selectedId: props.model,
+      onSelect: function (id) { props.onChange(id); setOpen(false); },
+      onClose: function () { setOpen(false); },
+      anchor: h(chip, { active: props.model !== "", onClick: function () { setOpen(!open); } },
+        h("span", { className: "dshtu_pick" },
+          h("span", { className: "dshtu_pickLabel" }, props.model === "" ? t("modelAll") : props.model),
+          iconChevron === null ? null : h(iconChevron, {})))
+    });
+  }
+
+  /**
+   * The money card's ⓘ: the shell's own icon inside the shell's Tooltip, with a
+   * plain title attribute as the only fallback on a shell without it.
+   */
+  function noteTrigger(t, notes) {
+    var glyph = h("i", { className: "dshtu_info" }, iconQuestion === null ? "i" : h(iconQuestion, {}));
+    if (tooltip === null) return h("i", { className: "dshtu_info", title: notes.text }, "i");
+    return h(tooltip, {
+      label: h("div", { className: "dshtu_pop" }, notes.node),
+      side: "top",
+      delayMs: 120,
+      maxWidth: 420
+    }, glyph);
+  }
+
   var BUCKET_KEYS = ["calls", "input", "output", "cacheRead", "cacheWrite", "reasoning", "total", "cost"];
 
   /** Project tables read as directory names; same-named projects merge, full path rides the title. */
@@ -245,7 +341,9 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
         h("thead", null,
           h("tr", null,
             h("th", null, keyLabel),
-            h("th", { title: t("costTipLong") }, t("cost") + "*"),
+            h("th", null, tooltip === null
+              ? h("span", { title: t("costTipLong") }, t("cost") + "*")
+              : h(tooltip, { label: t("costTipLong"), side: "top", delayMs: 250 }, h("span", null, t("cost") + "*"))),
             h("th", null, t("total")),
             h("th", null, t("input")),
             h("th", null, t("output")),
@@ -256,9 +354,14 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
           var row = rows[key];
           var note = notes === undefined ? undefined : notes[key];
           var blank = note !== undefined && note.blank === true;
+          var tip = note === undefined ? t("costTip") : note.tip;
+          var money = blank ? "—" : fmtMoney(row.cost);
           return h("tr", { key: key },
             h("td", { title: titles !== undefined && titles[key] !== undefined ? titles[key] : undefined }, key),
-            h("td", { className: blank ? "dshtu_nd" : undefined, title: note === undefined ? t("costTip") : note.tip }, blank ? "—" : fmtMoney(row.cost)),
+            h("td", { className: blank ? "dshtu_nd" : undefined },
+              tooltip === null
+                ? h("span", { title: tip }, money)
+                : h(tooltip, { label: tip, side: "top", delayMs: 250 }, h("span", { className: "dshtu_moneyCell" }, money))),
             h("td", null, fmtValue(row.total, unit)),
             h("td", null, fmtValue(row.input, unit)),
             h("td", null, fmtValue(row.output, unit)),
@@ -441,29 +544,27 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
       return h("div", { className: "dshtu_card dshtu_meta" }, t("trendEmpty"));
     }
     var rangeButton = function (value) {
-      return h("button", {
+      return h(chip, {
         key: value,
-        "data-on": range === value,
+        active: range === value,
         onClick: function () { if (props.onRange !== undefined) props.onRange(value); }
       }, value + t("daysSuffix"));
     };
     return h("div", { className: "dshtu_card" },
       h("div", { className: "dshtu_bar" },
-        h("span", { className: "dshtu_meta" }, t("trend") + " · " + shown.from + " ~ " + shown.to + " · " + t("cost") + " " + fmtMoney(cost)),
+        h("span", { className: "dshtu_meta dshtu_cardTitle" },
+          iconTrend === null ? null : h("span", { className: "dshtu_metaIcon" }, h(iconTrend, {})),
+          t("trend") + " · " + shown.from + " ~ " + shown.to + " · " + t("cost") + " " + fmtMoney(cost)),
         h("span", { style: { flex: "1" } }),
-        h("span", { className: "dshtu_seg" }, rangeButton(7), rangeButton(30), rangeButton(90))),
+        h("span", { className: "dshtu_chips" }, rangeButton(7), rangeButton(30), rangeButton(90))),
       h("div", { className: "dshtu_chart", ref: holder }));
   }
 
-  /** Money stat card: the headline amount plus the info icon that reveals the notes. */
+  /** Money stat card: the headline amount plus the ⓘ that reveals the notes. */
   function moneyBox(t, label, value, notes) {
-    var icon = h("i", { className: "dshtu_info", "aria-label": t("costTip") }, "i");
-    var trigger = tooltip === null
-      ? h("i", { className: "dshtu_info", title: t("costTipLong") }, "i")
-      : h(tooltip, { label: h("div", { className: "dshtu_pop" }, notes), side: "top", delayMs: 120, maxWidth: 420 }, icon);
     return h("div", { className: "dshtu_stat", "data-main": true },
       h("b", null, fmtMoney(value)),
-      h("span", null, label, trigger));
+      h("span", { className: "dshtu_statLabel" }, label, noteTrigger(t, notes)));
   }
 
   /** Rate line behind one model's amount: cache-hit / cache-miss / output. */
@@ -488,45 +589,68 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     return notes;
   }
 
-  /** Where the amounts come from, and what they leave out — the money card's hover notes. */
+  /**
+   * Where the amounts come from, and what they leave out. Returns both the
+   * rendered lines (for the hover layer) and the same text flattened, which is
+   * what the layer's copy button puts on the clipboard.
+   */
   function pricingNotes(t, data) {
     var pricing = data.pricing || {};
     var notes = data.modelPricing || {};
+    var nodes = [];
+    var texts = [];
+    var push = function (key, node, text, spaced) {
+      nodes.push(h("div", { key: key, style: spaced === true ? { marginTop: "5px" } : undefined }, node));
+      texts.push(text);
+    };
     var bits = [];
     if (pricing.builtIn === true) {
-      bits.push(h("span", { key: "src" }, pricing.error ? t("priceBuiltIn").replace("{error}", pricing.error) : t("priceOffline")));
+      var offline = pricing.error ? t("priceBuiltIn").replace("{error}", pricing.error) : t("priceOffline");
+      bits.push({ node: h("span", { key: "src" }, offline), text: offline });
     } else if (pricing.source) {
-      bits.push(h("span", { key: "src" }, t("priceSource") + " " + String(pricing.source).replace(/^https?:\/\//, "")));
+      var shown = String(pricing.source).replace(/^https?:\/\//, "");
+      bits.push({ node: h("span", { key: "src" }, t("priceSource") + " " + shown), text: t("priceSource") + " " + pricing.source });
     }
-    if (pricing.fetchedAt > 0) bits.push(h("span", { key: "at" }, t("priceFetched").replace("{time}", fmtTime(pricing.fetchedAt))));
-    if (pricing.nextRefreshAt > 0) bits.push(h("span", { key: "next" }, t("priceNext").replace("{time}", fmtTime(pricing.nextRefreshAt))));
+    if (pricing.fetchedAt > 0) {
+      var fetched = t("priceFetched").replace("{time}", fmtTime(pricing.fetchedAt));
+      bits.push({ node: h("span", { key: "at" }, fetched), text: fetched });
+    }
+    if (pricing.nextRefreshAt > 0) {
+      var next = t("priceNext").replace("{time}", fmtTime(pricing.nextRefreshAt));
+      bits.push({ node: h("span", { key: "next" }, next), text: next });
+    }
     if (pricing.peak) {
-      bits.push(h("span", { key: "peak" }, t("pricePeak").replace("{ranges}", pricing.peak.hoursUtc.map(function (range) { return range[0] + "-" + range[1]; }).join(" / "))));
+      var peak = t("pricePeak").replace("{ranges}", pricing.peak.hoursUtc.map(function (range) { return range[0] + "-" + range[1]; }).join(" / "));
+      bits.push({ node: h("span", { key: "peak" }, peak), text: peak });
     }
-    if (pricing.peakParsed === false) bits.push(h("span", { key: "peakAssumed" }, t("pricePeakAssumed")));
+    if (pricing.peakParsed === false) {
+      bits.push({ node: h("span", { key: "peakAssumed" }, t("pricePeakAssumed")), text: t("pricePeakAssumed") });
+    }
     var meta = [];
     bits.forEach(function (bit, index) {
       if (index > 0) meta.push(h("span", { className: "dshtu_sep", key: "sep" + index }, "·"));
-      meta.push(bit);
+      meta.push(bit.node);
     });
+    push("text", t("costTipLong"), t("costTipLong"));
+    push("meta", meta, bits.map(function (bit) { return bit.text; }).join(" · "), true);
     var skipped = Object.keys(notes).filter(function (name) { return notes[name].status !== "priced"; });
-    var lines = [
-      h("div", { key: "text" }, t("costTipLong")),
-      h("div", { key: "meta", style: { marginTop: "5px" } }, meta),
-    ];
     if (skipped.length > 0) {
-      lines.push(h("div", { key: "skipped", style: { marginTop: "5px" } }, t("notPriced") + "：" + skipped.map(function (name) {
-        return name + "（" + (notes[name].status === "excluded" ? t("reasonExcluded") : t("reasonUnmatched")) + "）";
-      }).join("、")));
+      var reason = function (name) { return notes[name].status === "excluded" ? t("reasonExcluded") : t("reasonUnmatched"); };
+      push("skipped", t("notPriced") + "：" + skipped.map(function (name) {
+        return name + "（" + reason(name) + "）";
+      }).join("、"), t("notPriced") + ": " + skipped.map(function (name) {
+        return name + " (" + reason(name) + ")";
+      }).join(", "), true);
     }
     var auxiliary = data.auxiliary;
     if (auxiliary && auxiliary.total > 0) {
       var detail = [];
       if (auxiliary.search > 0) detail.push(t("auxSearch") + " " + auxiliary.search);
       if (auxiliary.title > 0) detail.push(t("auxTitle") + " " + auxiliary.title);
-      lines.push(h("div", { key: "auxiliary", style: { marginTop: "5px" } }, t("auxiliaryNote").replace("{count}", auxiliary.total).replace("{detail}", detail.join(" / "))));
+      var auxiliaryText = t("auxiliaryNote").replace("{count}", auxiliary.total).replace("{detail}", detail.join(" / "));
+      push("auxiliary", auxiliaryText, auxiliaryText, true);
     }
-    return lines;
+    return { node: nodes, text: texts.join("\n") };
   }
 
   function Tab(props) {
@@ -608,19 +732,16 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
       try { localStorage.setItem("dshtu.unit", next); } catch (err) {}
     };
 
-    var seg = function (value, label) {
-      return h("button", { key: value, "data-on": unit === value, onClick: function () { switchUnit(value); } }, label);
-    };
-
-    var modeTab = function (value, label) {
-      return h("button", { key: value, "data-on": mode === value, onClick: function () { setMode(value); setTick(tick + 1); } }, label);
-    };
-
     if (error) {
       return h("div", { className: "dshtu_wrap" },
         h("div", { className: "dshtu_card dshtu_err" },
           h("span", null, t("error") + ": " + error),
-          h("button", { onClick: function () { setError(null); setTick(tick + 1); } }, t("retry"))));
+          h(button, {
+            variant: "outline",
+            size: "sm",
+            icon: iconRefresh === null ? null : h(iconRefresh, {}),
+            onClick: function () { setError(null); setTick(tick + 1); }
+          }, t("retry"))));
     }
     if (!data) {
       return h("div", { className: "dshtu_wrap" },
@@ -639,25 +760,36 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
       metaParts.push(t("scanPending"));
     }
     metaParts.push(t("updated").replace("{time}", fmtTime(data.updatedAt)));
+    var scanState = data.scan && data.scan.error ? "error" : (data.scan && data.scan.done ? "done" : "ongoing");
     return h("div", { className: "dshtu_wrap" },
       h("div", { className: "dshtu_card" },
         h("div", { className: "dshtu_bar" },
           h("label", null, t("filterLabel")),
-          h("span", { className: "dshtu_seg" },
-            modeTab("day", t("filterDay")),
-            modeTab("month", t("filterMonth")),
-            modeTab("all", t("filterAll"))),
-          mode === "day" ? h("input", { type: "date", value: day, onChange: function (e) { setDay(e.target.value); setTick(tick + 1); } }) : null,
-          mode === "month" ? h("input", { type: "month", value: month, onChange: function (e) { setMonth(e.target.value); setTick(tick + 1); } }) : null,
+          h("span", { className: "dshtu_chips" }, chips([
+            { value: "day", label: t("filterDay") },
+            { value: "month", label: t("filterMonth") },
+            { value: "all", label: t("filterAll") }
+          ], mode, function (value) { setMode(value); setTick(tick + 1); })),
+          mode === "day" ? h(input, { type: "date", value: day, onChange: function (event) { setDay(event.target.value); setTick(tick + 1); } }) : null,
+          mode === "month" ? h(input, { type: "month", value: month, onChange: function (event) { setMonth(event.target.value); setTick(tick + 1); } }) : null,
           h("span", { className: "dshtu_field" },
             h("label", null, t("modelLabel")),
-            h("select", { value: model, onChange: function (e) { setModel(e.target.value); setTick(tick + 1); } },
-              h("option", { value: "" }, t("modelAll")),
-              models.map(function (name) { return h("option", { key: name, value: name }, name); }))),
+            h(ModelPicker, {
+              t: t,
+              model: model,
+              models: models,
+              onChange: function (value) { setModel(value); setTick(tick + 1); }
+            }))),
+        h("div", { className: "dshtu_bar dshtu_subBar" },
+          h("span", { className: "dshtu_meta" },
+            iconGauge === null ? null : h("span", { className: "dshtu_metaIcon" }, h(iconGauge, {})),
+            t("totals")),
           h("span", { style: { flex: "1" } }),
           h("label", null, t("unitLabel")),
-          h("span", { className: "dshtu_seg" }, seg("zh", t("unitZh")), seg("en", t("unitEn")))),
-        h("div", { className: "dshtu_meta dshtu_totalsMeta" }, t("totals")),
+          h("span", { className: "dshtu_chips" }, chips([
+            { value: "zh", label: t("unitZh") },
+            { value: "en", label: t("unitEn") }
+          ], unit, switchUnit))),
         h("div", { className: "dshtu_grid" },
           statBox(t, t("total"), totals.total, unit, true),
           statBox(t, t("input"), totals.input, unit),
@@ -674,7 +806,9 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
         var projects = shortenProjects(data.byProject);
         return table(t, t("byProject"), projects.rows, unit, projects.titles);
       })(),
-      h("div", { className: "dshtu_meta" }, metaParts.join(" · ")));
+      h("div", { className: "dshtu_foot" },
+        stateDot === null ? null : h(stateDot, { state: scanState, size: 8 }),
+        h("span", { className: "dshtu_meta" }, metaParts.join(" · "))));
   }
 
   /**
@@ -694,35 +828,83 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     + ";mask:url(\"" + NAV_GLYPH + "\") center/16px 16px no-repeat;"
     + "-webkit-mask:url(\"" + NAV_GLYPH + "\") center/16px 16px no-repeat}";
 
+  /**
+   * Handles the newest fiber owns. A client-plugin hot reload re-applies this
+   * module, and the replacement fiber must take the rail style and the settings
+   * slot over from the fiber it replaces — otherwise the section would vanish
+   * after every rebuild until the page is reloaded.
+   */
+  var railStyle = null;
+  var sectionOwner = null;
+  var localeOwner = null;
+
   function apply(ctx) {
     ctx.effect(function () {
-      ctx.locale.register(NS, { zh: zh, en: en });
+      // A reloaded fiber replaces the dictionary it finds: re-registering the
+      // same namespace on top of a still-registered one is what makes a hot
+      // reload fail, and a failure here would take the whole panel down with it.
+      if (localeOwner !== null) {
+        try { localeOwner(); } catch (ignored) {}
+        localeOwner = null;
+      }
+      var dispose = null;
+      try {
+        dispose = ctx.locale.register(NS, { zh: zh, en: en });
+      } catch (error) {
+        console.error("[dsh-token-use] dictionary registration failed", error);
+      }
+      localeOwner = typeof dispose === "function" ? dispose : null;
+      return function () {
+        if (localeOwner === dispose) localeOwner = null;
+        if (typeof dispose === "function") dispose();
+      };
     }, "dsh-token-use: dictionaries");
     ctx.effect(function () {
-      var existing = document.getElementById("dshtu-nav-style");
-      if (existing !== null) return function () {};
       var style = document.createElement("style");
       style.id = "dshtu-nav-style";
       style.textContent = navGlyphCss;
       document.head.appendChild(style);
-      return function () { style.remove(); };
+      railStyle = style;
+      return function () {
+        style.remove();
+        if (railStyle === style) railStyle = null;
+      };
     }, "dsh-token-use: rail glyph");
     var t = ctx.locale.bind(NS);
     ctx.slots.inject("settings.section", function () {
-      return ctx.slots.register({
-        name: "settings.section",
-        id: "token-usage",
-        order: 90,
-        // The settings rail picks its glyph by section id (`navIcon(id)`) and
-        // falls back to the settings gear for every id it does not know, so
-        // this label carries a marker the stylesheet hangs our own chart glyph
-        // on: `navGlyphCss` hides the gear and masks a bar chart into its place.
-        // If a future shell changes that markup the selector stops matching and
-        // the gear simply stays — never two glyphs at once.
-        label: function () { return h("span", { className: "dshtu_navlabel" }, t("tab")); },
-        locale: NS,
-        inject: function () { return { t: t }; }
-      }, function (props) { return h(Tab, props); });
+      var register = function () {
+        return ctx.slots.register({
+          name: "settings.section",
+          id: "token-usage",
+          order: 90,
+          // The settings rail picks its glyph by section id (`navIcon(id)`) and
+          // falls back to the settings gear for every id it does not know, so
+          // this label carries a marker the stylesheet hangs our own chart glyph
+          // on: `navGlyphCss` hides the gear and masks a bar chart into its place.
+          // If a future shell changes that markup the selector stops matching and
+          // the gear simply stays — never two glyphs at once.
+          label: function () { return h("span", { className: "dshtu_navlabel" }, t("tab")); },
+          locale: NS,
+          inject: function () { return { t: t }; }
+        }, function (props) { return h(Tab, props); });
+      };
+      var dispose;
+      try {
+        dispose = register();
+      } catch (error) {
+        // The reloaded fiber can land while the previous registration is still
+        // on the ledger: retire it and claim the slot for this fiber.
+        if (sectionOwner !== null) {
+          try { sectionOwner(); } catch (ignored) {}
+          sectionOwner = null;
+        }
+        dispose = register();
+      }
+      sectionOwner = dispose;
+      return function () {
+        if (sectionOwner === dispose) sectionOwner = null;
+        dispose();
+      };
     });
   }
 

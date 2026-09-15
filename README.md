@@ -84,6 +84,14 @@ pnpm run build        # 重新生成 client/client.js（= 精简 ECharts + clien
 
 `client/client.js` 是已提交的构建产物，使用者无需安装依赖或构建。
 
+**开发环路**（把本仓库以 `link:` 装进 profile 后：`dsh plugin --profile web add /path/to/dsh-token-use`）：
+
+- 改 `client/src.js` → `pnpm run build` → **浏览器里的面板自动热更新**（宿主侧会轮询每个插件行的 client bundle，变化时通过 SSE `/plugins/events` 推 `rebuilt`，浏览器侧热替换），**不用重启 `dsh web`、也不用刷新页面**；实测换装延迟 < 1s。
+- 改 `lib/*.js`（宿主侧，如 `pricing.js`）→ 仍需重启 `dsh web`。
+- **热重载要求 `apply()` 幂等**：重载会把新 fiber 装进来，若它直接重复注册同一个 locale 命名空间 / 槽位就会抛错，整个设置分区会消失直到刷新页面。本插件的字典、导航样式与 `settings.section` 注册都是「接管式」的（先退掉旧注册再登记），因此可以安全热重载。
+
+界面用 DSH 自带的组件库 `@deepseek-ai/dsh-client-ui-primitives`（`Button` / `Pill` / `Input` / `Menu` / `Tooltip` / `StateDot` 与图标集）：打包插件里直接 `require("@deepseek-ai/dsh-client-ui-primitives")` 即可；老版本 shell 上组件缺失时逐项降级为原生控件。**创造模式预览动态 cordis 插件**时无法引入外部依赖，可改用 `window.__DSH_MODULES__.import("@deepseek-ai/dsh-client-ui-primitives")`（该模块属于 shell 的静态模块，普通 Web GUI 里没有 `window.__DSH_MODULES__`）。
+
 已发布到 npm（包名 `dsh-token-use`，`repository` 指回本仓库，因此官方市场会自动关联并显示下载量）。升级流程：改 `version` → `npm publish` → 用户 `dsh plugin update` 或市场一键更新。
 
 ## 字段口径
