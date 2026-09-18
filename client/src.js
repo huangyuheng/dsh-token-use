@@ -74,6 +74,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     peak: "峰值",
     filterAll: "全部",
     filterDay: "按天",
+    filterRange: "时间段",
     filterMonth: "按月",
     filterLabel: "范围",
     modelLabel: "模型",
@@ -132,6 +133,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     peak: "Peak",
     filterAll: "All",
     filterDay: "By day",
+    filterRange: "Date range",
     filterMonth: "By month",
     filterLabel: "Range",
     modelLabel: "Model",
@@ -170,7 +172,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     retry: "Retry"
   };
 
-  var css = ".dshtu_wrap{max-width:860px;display:flex;flex-direction:column;gap:14px;padding:2px 2px 4px;color:var(--dsw-alias-label-primary);font-size:13px}.dshtu_card{background:var(--dsw-alias-bg-layer-3);border-radius:14px;box-shadow:var(--dsw-elevation-stroke);padding:14px 16px}.dshtu_bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_bar label{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_bar .dshtu_select,.dshtu_bar .dshtu_input{border:.5px solid var(--dsw-alias-border-l4);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;border-radius:8px;padding:4px 8px;font-size:12.5px}.dshtu_bar .dshtu_select{width:168px;text-overflow:ellipsis;white-space:nowrap}.dshtu_chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.dshtu_subBar{margin-top:12px}.dshtu_pick{display:inline-flex;align-items:center;gap:4px;max-width:230px}.dshtu_pickLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dshtu_metaIcon{display:inline-flex;align-items:center;margin-right:5px;vertical-align:-2px;color:var(--dsw-alias-label-tertiary)}.dshtu_cardTitle{display:inline-flex;align-items:center}.dshtu_foot{display:flex;align-items:center;gap:6px}.dshtu_statLabel{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.dshtu_field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_seg{display:inline-flex;border:.5px solid var(--dsw-alias-border-l4);border-radius:8px;overflow:hidden}.dshtu_seg button{border:0;background:0 0;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;padding:4px 10px;font-size:12.5px}.dshtu_seg button[data-on=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.dshtu_totalsMeta{margin-top:12px}.dshtu_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:8px}.dshtu_stat{background:var(--dsw-alias-bg-module-platform);border-radius:10px;padding:10px 12px}.dshtu_stat b{display:block;font-size:16px;line-height:24px;font-variant-numeric:tabular-nums}.dshtu_stat span{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_stat[data-main=true]{background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 12%,var(--dsw-alias-bg-module-platform))}.dshtu_stat[data-main=true] b{color:var(--dsw-alias-state-business-primary);font-size:20px}.dshtu_table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.dshtu_table th,.dshtu_table td{text-align:right;padding:6px 8px;border-bottom:.5px solid var(--dsw-alias-border-l2);font-weight:400}.dshtu_table th:first-child,.dshtu_table td:first-child{text-align:left}.dshtu_table th{color:var(--dsw-alias-label-tertiary);font-size:12px;white-space:nowrap}.dshtu_table td:first-child{overflow-wrap:anywhere;max-width:300px;color:var(--dsw-alias-label-secondary)}.dshtu_meta{color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}.dshtu_err{color:var(--dsw-alias-state-error-primary);display:flex;align-items:center;gap:10px}.dshtu_chart{width:100%;height:260px}.dshtu_info{display:inline-flex;align-items:center;justify-content:center;margin-left:6px;color:var(--dsw-alias-label-tertiary);cursor:help}.dshtu_info:hover{color:var(--dsw-alias-state-business-primary)}.dshtu_pop{display:block;max-width:420px;font-size:12px;font-weight:400;line-height:18px;text-align:left;white-space:normal}.dshtu_pop .dshtu_sep{margin:0 5px;opacity:.55}[role=tooltip]:has(.dshtu_pop){background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);padding:10px 12px;border:0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16)}.dshtu_nd{color:var(--dsw-alias-label-tertiary)}";
+  var css = ".dshtu_wrap{max-width:860px;display:flex;flex-direction:column;gap:14px;padding:2px 2px 4px;color:var(--dsw-alias-label-primary);font-size:13px}.dshtu_card{background:var(--dsw-alias-bg-layer-3);border-radius:14px;box-shadow:var(--dsw-elevation-stroke);padding:14px 16px}.dshtu_bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_bar label{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_bar .dshtu_select,.dshtu_bar .dshtu_input{border:.5px solid var(--dsw-alias-border-l4);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;border-radius:8px;padding:4px 8px;font-size:12.5px}.dshtu_bar .dshtu_select{width:168px;text-overflow:ellipsis;white-space:nowrap}.dshtu_chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.dshtu_subBar{margin-top:12px}.dshtu_pick{display:inline-flex;align-items:center;gap:4px;max-width:230px}.dshtu_pickLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dshtu_metaIcon{display:inline-flex;align-items:center;margin-right:5px;vertical-align:-2px;color:var(--dsw-alias-label-tertiary)}.dshtu_cardTitle{display:inline-flex;align-items:center}.dshtu_foot{display:flex;align-items:center;gap:6px}.dshtu_statLabel{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.dshtu_field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_seg{display:inline-flex;border:.5px solid var(--dsw-alias-border-l4);border-radius:8px;overflow:hidden}.dshtu_seg button{border:0;background:0 0;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;padding:4px 10px;font-size:12.5px}.dshtu_seg button[data-on=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.dshtu_totalsMeta{margin-top:12px}.dshtu_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:8px}.dshtu_stat{background:var(--dsw-alias-bg-module-platform);border-radius:10px;padding:10px 12px}.dshtu_stat b{display:block;font-size:16px;line-height:24px;font-variant-numeric:tabular-nums}.dshtu_stat span{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_stat[data-main=true]{background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 12%,var(--dsw-alias-bg-module-platform))}.dshtu_stat[data-main=true] b{color:var(--dsw-alias-state-business-primary);font-size:20px}.dshtu_table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.dshtu_table th,.dshtu_table td{text-align:right;padding:6px 8px;border-bottom:.5px solid var(--dsw-alias-border-l2);font-weight:400}.dshtu_table th:first-child,.dshtu_table td:first-child{text-align:left}.dshtu_table th{color:var(--dsw-alias-label-tertiary);font-size:12px;white-space:nowrap}.dshtu_table td:first-child{overflow-wrap:anywhere;max-width:300px;color:var(--dsw-alias-label-secondary)}.dshtu_meta{color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}.dshtu_err{color:var(--dsw-alias-state-error-primary);display:flex;align-items:center;gap:10px}.dshtu_chart{width:100%;height:260px}.dshtu_info{display:inline-flex;align-items:center;justify-content:center;margin-left:6px;color:var(--dsw-alias-label-tertiary);cursor:help}.dshtu_info:hover{color:var(--dsw-alias-state-business-primary)}.dshtu_pop{display:block;max-width:420px;font-size:12px;font-weight:400;line-height:18px;text-align:left;white-space:normal}.dshtu_pop .dshtu_sep{margin:0 5px;opacity:.55}[role=tooltip]:has(.dshtu_pop){background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);padding:10px 12px;border:0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16)}.dshtu_nd{color:var(--dsw-alias-label-tertiary)}.dshtu_range{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_range input{width:132px}.dshtu_range em{font-style:normal;color:var(--dsw-alias-label-tertiary)}";
 
   function trimNum(v, decimals) {
     var f = v.toFixed(decimals);
@@ -652,15 +654,36 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
         return stored === 30 || stored === 90 ? stored : 7;
       } catch (err) { return 7; }
     }), chartDays = _i[0], setChartDays = _i[1];
+    // The custom span starts as today → today, i.e. the same window as By day.
+    var _j = useState(today()), from = _j[0], setFrom = _j[1];
+    var _k = useState(today()), to = _k[0], setTo = _k[1];
 
     var switchDays = function (value) {
       setChartDays(value);
       try { localStorage.setItem("dshtu.trendDays", String(value)); } catch (err) {}
     };
 
+    /**
+     * The custom span's two ends stay ordered: moving one past the other drags
+     * the other along, so the request is never a backwards window (the endpoint
+     * rejects those). An emptied field is ignored instead of sent as "".
+     */
+    var pickSpanEnd = function (value, which) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
+      if (which === "from") {
+        setFrom(value);
+        if (to < value) setTo(value);
+      } else {
+        setTo(value);
+        if (value < from) setFrom(value);
+      }
+      setTick(tick + 1);
+    };
+
     var parts = [];
     if (mode === "day") parts.push("day=" + day);
     if (mode === "month") parts.push("month=" + month);
+    if (mode === "range") parts.push("from=" + from, "to=" + to);
     if (model) parts.push("model=" + encodeURIComponent(model));
     var query = parts.length > 0 ? "?" + parts.join("&") : "";
 
@@ -748,10 +771,15 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
           h("label", null, t("filterLabel")),
           h("span", { className: "dshtu_chips" }, chips([
             { value: "day", label: t("filterDay") },
+            { value: "range", label: t("filterRange") },
             { value: "month", label: t("filterMonth") },
             { value: "all", label: t("filterAll") }
           ], mode, function (value) { setMode(value); setTick(tick + 1); })),
           mode === "day" ? h(input, { type: "date", value: day, onChange: function (event) { setDay(event.target.value); setTick(tick + 1); } }) : null,
+          mode === "range" ? h("span", { className: "dshtu_range" },
+            h(input, { type: "date", value: from, onChange: function (event) { pickSpanEnd(event.target.value, "from"); } }),
+            h("em", null, "→"),
+            h(input, { type: "date", value: to, onChange: function (event) { pickSpanEnd(event.target.value, "to"); } })) : null,
           mode === "month" ? h(input, { type: "month", value: month, onChange: function (event) { setMonth(event.target.value); setTick(tick + 1); } }) : null,
           h("span", { className: "dshtu_field" },
             h("label", null, t("modelLabel")),
