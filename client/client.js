@@ -23,6 +23,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
   var exports = module.exports;
   var react = require("react");
   var useEffect = react.useEffect;
+  var useRef = react.useRef;
   var useState = react.useState;
   var h = react.createElement;
 
@@ -51,6 +52,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
   var tooltip = component("Tooltip", null);
   var stateDot = component("StateDot", null);
   var menu = component("Menu", null);
+  var modal = component("Modal", null);
   var icon = function (name) {
     return typeof ui[name] === "function" ? ui[name] : null;
   };
@@ -59,6 +61,11 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
   var iconRefresh = icon("IconRefreshOutline14");
   var iconGauge = icon("IconGaugeOutline16");
   var iconTrend = icon("IconDataOutline16");
+  var iconCheck = icon("IconCheckOutline16");
+  var iconWarn = icon("IconWarningOutline16");
+  var iconClock = icon("IconClockOutline16");
+  var iconLoading = icon("IconLoadingOutline16");
+  var iconApi = icon("IconApiOutline14");
   /** Chip and Button degrade into styled native controls on an older shell. */
   var chip = component("Pill", function (props) {
     return h("button", { type: "button", className: "dshtu_seg", "data-on": props.active === true, onClick: props.onClick, disabled: props.disabled === true }, props.children);
@@ -131,7 +138,62 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     loading: "加载中…",
     error: "读取失败",
     remoteDenied: "接口仅允许本机访问；局域网使用需在插件配置中开启 allowRemote",
-    retry: "重试"
+    retry: "重试",
+    tabOverview: "概览",
+    tabModels: "模型统计",
+    tabProjects: "项目统计",
+    tabConfig: "配置信息",
+    heatmap: "使用热力图",
+    heatmapNote: "近 12 个月，每格一天；悬停查看当天明细",
+    heatLess: "少",
+    heatMore: "多",
+    heatCell: "{day} · 总计 {total} · {cost} · {calls} 次调用",
+    heatEmpty: "近 12 个月没有记录",
+    configVersions: "版本信息",
+    configRuntime: "运行环境",
+    versionPackage: "组件",
+    versionInstalled: "已安装",
+    versionLatest: "最新",
+    versionState: "状态",
+    versionCurrent: "最新",
+    versionOutdated: "有新版本",
+    versionAhead: "高于 registry",
+    versionUnknown: "未知",
+    versionChannel: "{channel} 通道",
+    versionChecked: "检查于 {time}",
+    versionRefresh: "重新检查",
+    healthCheck: "健康检查",
+    healthRunning: "检查中…",
+    healthOk: "接口正常",
+    healthFail: "接口异常",
+    healthLatency: "响应耗时",
+    healthEndpoint: "接口版本",
+    healthScan: "历史扫描",
+    healthScanDone: "{sessions} 会话 · {files} 日志 · {ms} ms",
+    healthScanRunning: "运行中",
+    healthScanFailed: "失败",
+    healthPricing: "定价数据",
+    healthPricingValue: "{source} · 更新于 {time}",
+    healthBuckets: "数据桶",
+    healthBucketsValue: "{days} 天 · {models} 个模型",
+    healthUpdated: "数据更新于",
+    restart: "一键重启",
+    restartTitle: "重启 dsh web 服务",
+    restartBody: "将重启正在提供本页面的 dsh web 进程（PID {pid}）。页面会断开约 10-30 秒，恢复后自动重新加载。",
+    restartConfirm: "确认重启",
+    restartCancel: "取消",
+    restartPending: "已提交重启，等待服务恢复…",
+    restartDone: "服务已恢复，正在重新加载页面…",
+    restartFailed: "重启失败：{error}",
+    runtimePlatform: "平台版本",
+    runtimeNode: "Node 版本",
+    runtimePid: "进程 PID",
+    runtimePort: "监听端口",
+    runtimeUptime: "已运行",
+    runtimeHome: "DSH_HOME",
+    runtimeUptimeValue: "{days} 天 {hours} 小时",
+    runtimeUptimeShort: "{minutes} 分钟",
+    close: "关闭"
   };
   var en = {
     tab: "Token usage",
@@ -191,10 +253,65 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     loading: "Loading…",
     error: "Failed to load",
     remoteDenied: "Endpoint is loopback-only; enable allowRemote in the plugin config for LAN access",
-    retry: "Retry"
+    retry: "Retry",
+    tabOverview: "Overview",
+    tabModels: "By model",
+    tabProjects: "By project",
+    tabConfig: "Configuration",
+    heatmap: "Usage heatmap",
+    heatmapNote: "Last 12 months, one cell per day; hover for that day's detail",
+    heatLess: "Less",
+    heatMore: "More",
+    heatCell: "{day} · {total} tokens · {cost} · {calls} calls",
+    heatEmpty: "Nothing recorded in the last 12 months",
+    configVersions: "Versions",
+    configRuntime: "Runtime",
+    versionPackage: "Package",
+    versionInstalled: "Installed",
+    versionLatest: "Latest",
+    versionState: "Status",
+    versionCurrent: "Up to date",
+    versionOutdated: "Update available",
+    versionAhead: "Ahead of registry",
+    versionUnknown: "Unknown",
+    versionChannel: "{channel} channel",
+    versionChecked: "Checked {time}",
+    versionRefresh: "Check again",
+    healthCheck: "Health check",
+    healthRunning: "Checking…",
+    healthOk: "Endpoint healthy",
+    healthFail: "Endpoint failed",
+    healthLatency: "Latency",
+    healthEndpoint: "Endpoint version",
+    healthScan: "History scan",
+    healthScanDone: "{sessions} sessions · {files} logs · {ms} ms",
+    healthScanRunning: "running",
+    healthScanFailed: "failed",
+    healthPricing: "Price data",
+    healthPricingValue: "{source} · fetched {time}",
+    healthBuckets: "Buckets",
+    healthBucketsValue: "{days} days · {models} models",
+    healthUpdated: "Data updated",
+    restart: "Restart service",
+    restartTitle: "Restart the dsh web service",
+    restartBody: "This restarts the dsh web process serving this page (PID {pid}). The page goes away for roughly 10-30 seconds and reloads itself once the service is back.",
+    restartConfirm: "Restart now",
+    restartCancel: "Cancel",
+    restartPending: "Restart submitted — waiting for the service…",
+    restartDone: "Service is back — reloading the page…",
+    restartFailed: "Restart failed: {error}",
+    runtimePlatform: "Platform",
+    runtimeNode: "Node version",
+    runtimePid: "PID",
+    runtimePort: "Port",
+    runtimeUptime: "Uptime",
+    runtimeHome: "DSH_HOME",
+    runtimeUptimeValue: "{days}d {hours}h",
+    runtimeUptimeShort: "{minutes}m",
+    close: "Close"
   };
 
-  var css = ".dshtu_wrap{max-width:860px;display:flex;flex-direction:column;gap:14px;padding:2px 2px 4px;color:var(--dsw-alias-label-primary);font-size:13px}.dshtu_card{background:var(--dsw-alias-bg-layer-3);border-radius:14px;box-shadow:var(--dsw-elevation-stroke);padding:14px 16px}.dshtu_bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_bar label{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_bar .dshtu_select,.dshtu_bar .dshtu_input{border:.5px solid var(--dsw-alias-border-l4);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;border-radius:8px;padding:4px 8px;font-size:12.5px}.dshtu_bar .dshtu_select{width:168px;text-overflow:ellipsis;white-space:nowrap}.dshtu_chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.dshtu_subBar{margin-top:12px}.dshtu_pick{display:inline-flex;align-items:center;gap:4px;max-width:230px}.dshtu_pickLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dshtu_metaIcon{display:inline-flex;align-items:center;margin-right:5px;vertical-align:-2px;color:var(--dsw-alias-label-tertiary)}.dshtu_cardTitle{display:inline-flex;align-items:center}.dshtu_foot{display:flex;align-items:center;gap:6px}.dshtu_statLabel{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.dshtu_field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_seg{display:inline-flex;border:.5px solid var(--dsw-alias-border-l4);border-radius:8px;overflow:hidden}.dshtu_seg button{border:0;background:0 0;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;padding:4px 10px;font-size:12.5px}.dshtu_seg button[data-on=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.dshtu_totalsMeta{margin-top:12px}.dshtu_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:8px}.dshtu_stat{background:var(--dsw-alias-bg-module-platform);border-radius:10px;padding:10px 12px}.dshtu_stat b{display:block;font-size:16px;line-height:24px;font-variant-numeric:tabular-nums}.dshtu_stat span{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_stat[data-main=true]{background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 12%,var(--dsw-alias-bg-module-platform))}.dshtu_stat[data-main=true] b{color:var(--dsw-alias-state-business-primary);font-size:20px}.dshtu_table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.dshtu_table th,.dshtu_table td{text-align:right;padding:6px 8px;border-bottom:.5px solid var(--dsw-alias-border-l2);font-weight:400}.dshtu_table th:first-child,.dshtu_table td:first-child{text-align:left}.dshtu_table th{color:var(--dsw-alias-label-tertiary);font-size:12px;white-space:nowrap}.dshtu_table td:first-child{overflow-wrap:anywhere;max-width:300px;color:var(--dsw-alias-label-secondary)}.dshtu_meta{color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}.dshtu_err{color:var(--dsw-alias-state-error-primary);display:flex;align-items:center;gap:10px}.dshtu_chart{width:100%;height:260px}.dshtu_info{display:inline-flex;align-items:center;justify-content:center;margin-left:6px;color:var(--dsw-alias-label-tertiary);cursor:help}.dshtu_info:hover{color:var(--dsw-alias-state-business-primary)}.dshtu_pop{display:block;max-width:420px;font-size:12px;font-weight:400;line-height:18px;text-align:left;white-space:normal}.dshtu_pop .dshtu_sep{margin:0 5px;opacity:.55}[role=tooltip]:has(.dshtu_pop){background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);padding:10px 12px;border:0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16)}.dshtu_nd{color:var(--dsw-alias-label-tertiary)}.dshtu_range{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_range input{width:132px}.dshtu_range em{font-style:normal;color:var(--dsw-alias-label-tertiary)}";
+  var css = ".dshtu_wrap{max-width:860px;display:flex;flex-direction:column;gap:14px;padding:2px 2px 4px;color:var(--dsw-alias-label-primary);font-size:13px}.dshtu_card{background:var(--dsw-alias-bg-layer-3);border-radius:14px;box-shadow:var(--dsw-elevation-stroke);padding:14px 16px}.dshtu_bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_bar label{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_bar .dshtu_select,.dshtu_bar .dshtu_input{border:.5px solid var(--dsw-alias-border-l4);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;border-radius:8px;padding:4px 8px;font-size:12.5px}.dshtu_bar .dshtu_select{width:168px;text-overflow:ellipsis;white-space:nowrap}.dshtu_chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.dshtu_subBar{margin-top:12px}.dshtu_pick{display:inline-flex;align-items:center;gap:4px;max-width:230px}.dshtu_pickLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dshtu_metaIcon{display:inline-flex;align-items:center;margin-right:5px;vertical-align:-2px;color:var(--dsw-alias-label-tertiary)}.dshtu_cardTitle{display:inline-flex;align-items:center}.dshtu_foot{display:flex;align-items:center;gap:6px}.dshtu_statLabel{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.dshtu_field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_seg{display:inline-flex;border:.5px solid var(--dsw-alias-border-l4);border-radius:8px;overflow:hidden}.dshtu_seg button{border:0;background:0 0;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;padding:4px 10px;font-size:12.5px}.dshtu_seg button[data-on=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.dshtu_totalsMeta{margin-top:12px}.dshtu_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:8px}.dshtu_stat{background:var(--dsw-alias-bg-module-platform);border-radius:10px;padding:10px 12px}.dshtu_stat b{display:block;font-size:16px;line-height:24px;font-variant-numeric:tabular-nums}.dshtu_stat span{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_stat[data-main=true]{background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 12%,var(--dsw-alias-bg-module-platform))}.dshtu_stat[data-main=true] b{color:var(--dsw-alias-state-business-primary);font-size:20px}.dshtu_table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.dshtu_table th,.dshtu_table td{text-align:right;padding:6px 8px;border-bottom:.5px solid var(--dsw-alias-border-l2);font-weight:400}.dshtu_table th:first-child,.dshtu_table td:first-child{text-align:left}.dshtu_table th{color:var(--dsw-alias-label-tertiary);font-size:12px;white-space:nowrap}.dshtu_table td:first-child{overflow-wrap:anywhere;max-width:300px;color:var(--dsw-alias-label-secondary)}.dshtu_meta{color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}.dshtu_err{color:var(--dsw-alias-state-error-primary);display:flex;align-items:center;gap:10px}.dshtu_chart{width:100%;height:260px}.dshtu_info{display:inline-flex;align-items:center;justify-content:center;margin-left:6px;color:var(--dsw-alias-label-tertiary);cursor:help}.dshtu_info:hover{color:var(--dsw-alias-state-business-primary)}.dshtu_pop{display:block;max-width:420px;font-size:12px;font-weight:400;line-height:18px;text-align:left;white-space:normal}.dshtu_pop .dshtu_sep{margin:0 5px;opacity:.55}[role=tooltip]:has(.dshtu_pop){background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);padding:10px 12px;border:0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16)}.dshtu_nd{color:var(--dsw-alias-label-tertiary)}.dshtu_range{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_range input{width:132px}.dshtu_range em{font-style:normal;color:var(--dsw-alias-label-tertiary)}.dshtu_tabRow{display:flex;align-items:center;gap:10px;border-bottom:.5px solid var(--dsw-alias-border-l2);padding-bottom:2px}.dshtu_tabs{display:flex;align-items:center;gap:2px;flex:1;flex-wrap:wrap}.dshtu_tabs button{border:0;background:0 0;font:inherit;color:var(--dsw-alias-label-secondary);cursor:pointer;padding:6px 10px;border-bottom:2px solid transparent;margin-bottom:-3px;font-size:13px}.dshtu_tabs button:hover{color:var(--dsw-alias-label-primary)}.dshtu_tabs button[data-on=true]{color:var(--dsw-alias-label-primary);border-bottom-color:var(--dsw-alias-state-business-primary);font-weight:500}.dshtu_heatCard{display:flex;flex-direction:column;gap:10px}.dshtu_heatHead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_heatScroll{overflow-x:auto;padding-bottom:4px}.dshtu_heatMonths{display:flex;gap:3px;margin-left:20px;height:14px}.dshtu_heatMonth{width:11px;font-size:10px;line-height:14px;color:var(--dsw-alias-label-tertiary);white-space:nowrap}.dshtu_heatBody{display:flex;gap:3px}.dshtu_heatDays{display:flex;flex-direction:column;gap:3px;width:17px}.dshtu_heatDay{height:11px;font-size:10px;line-height:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heat{display:flex;gap:3px}.dshtu_heatCol{display:flex;flex-direction:column;gap:3px}.dshtu_heatCell{width:11px;height:11px;border-radius:2px;background:var(--dsw-alias-bg-module-platform)}.dshtu_heatCell[data-future=true]{background:0 0}.dshtu_heatLegend{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heatLegend i{width:11px;height:11px;border-radius:2px;display:inline-block}.dshtu_kv{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:8px;font-size:12.5px}.dshtu_kv dt{color:var(--dsw-alias-label-tertiary)}.dshtu_kv dd{margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.dshtu_acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}.dshtu_health{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:12px;padding-top:10px;border-top:.5px solid var(--dsw-alias-border-l2);font-size:12.5px}.dshtu_health dt{color:var(--dsw-alias-label-tertiary)}.dshtu_health dd{margin:0;font-variant-numeric:tabular-nums}.dshtu_head{display:flex;align-items:center;gap:6px;margin-bottom:8px}.dshtu_head h3{margin:0;font-size:13px;font-weight:500}.dshtu_slim .dshtu_bar{margin:0}.dshtu_state{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}.dshtu_state[data-tone=ok]{color:var(--dsw-alias-state-success-primary)}.dshtu_state[data-tone=warn]{color:var(--dsw-alias-state-warning-primary)}.dshtu_state[data-tone=bad]{color:var(--dsw-alias-state-error-primary)}.dshtu_state[data-tone=idle]{color:var(--dsw-alias-label-tertiary)}.dshtu_modalBody{font-size:12.5px;line-height:20px;color:var(--dsw-alias-label-secondary);max-width:420px}.dshtu_modalFoot{display:flex;justify-content:flex-end;gap:8px}.dshtu_verCell{font-variant-numeric:tabular-nums;white-space:nowrap}";
 
   function trimNum(v, decimals) {
     var f = v.toFixed(decimals);
@@ -655,6 +772,258 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     return { node: nodes, text: texts.join("\n") };
   }
 
+  /**
+   * Calendar heatmap: one column per week, one cell per day, drawn from the
+   * per-day series the endpoint already ships for the trend chart. Levels are
+   * quartiles of the non-zero days, so a quiet stretch still shows contrast.
+   * Detail rides the cell's native `title` — 366 shell tooltips would cost far
+   * more than the information is worth.
+   */
+  var HEAT_LEVELS = [
+    null,
+    "color-mix(in srgb, var(--dsw-alias-state-business-primary) 22%, transparent)",
+    "color-mix(in srgb, var(--dsw-alias-state-business-primary) 45%, transparent)",
+    "color-mix(in srgb, var(--dsw-alias-state-business-primary) 70%, transparent)",
+    "var(--dsw-alias-state-business-primary)"
+  ];
+  var EN_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  /** `9月` in Chinese, `Sep` in English — the panel's own unit switch decides. */
+  function monthLabel(day, unit) {
+    var month = Number(day.slice(5, 7));
+    return unit === "en" ? EN_MONTHS[month - 1] : month + "月";
+  }
+
+  /** Day number since the epoch, so calendar maths never meets a timezone. */
+  function dayNumber(day) {
+    var parts = day.split("-").map(Number);
+    return Math.floor(Date.UTC(parts[0], parts[1] - 1, parts[2]) / 86400000);
+  }
+
+  function heatCells(trend, metric) {
+    var days = Object.keys(trend || {}).sort();
+    if (days.length === 0) return { weeks: [], limits: [0, 0, 0] };
+    var valueOf = function (day) {
+      var bucket = trend[day] || {};
+      return metric === "cost" ? (bucket.cost || 0) : (bucket.total || 0);
+    };
+    var numbers = days.map(valueOf).filter(function (value) { return value > 0; }).sort(function (a, b) { return a - b; });
+    var at = function (q) { return numbers.length === 0 ? 0 : numbers[Math.min(numbers.length - 1, Math.floor(numbers.length * q))]; };
+    var limits = [at(0.25), at(0.5), at(0.75)];
+    // 1970-01-01 was a Thursday, so Monday-first rows start at offset 3.
+    var first = dayNumber(days[0]);
+    var last = dayNumber(days[days.length - 1]);
+    var offset = (first + 3) % 7;
+    var weeks = []
+    for (var week = 0; week * 7 < last - first + 1 + offset; week++) {
+      var column = [];
+      for (var row = 0; row < 7; row++) {
+        var number = first - offset + week * 7 + row;
+        column.push(number >= first && number <= last ? days[number - first] : (number > last ? "future" : null));
+      }
+      weeks.push(column);
+    }
+    return { weeks: weeks, limits: limits, valueOf: valueOf };
+  }
+
+  /** `少 ▢▢▢▢ 多` — the colour key, shown in the card header. */
+  function heatLegend(t) {
+    return h("span", { className: "dshtu_heatLegend" }, [
+      h("span", { key: "less" }, t("heatLess")),
+      h("i", { key: "l0" }),
+      h("i", { key: "l1", style: { background: HEAT_LEVELS[1] } }),
+      h("i", { key: "l2", style: { background: HEAT_LEVELS[2] } }),
+      h("i", { key: "l3", style: { background: HEAT_LEVELS[3] } }),
+      h("i", { key: "l4", style: { background: HEAT_LEVELS[4] } }),
+      h("span", { key: "more" }, t("heatMore"))
+    ]);
+  }
+
+  function Heatmap(props) {
+    var t = props.t;
+    var unit = props.unit;
+    // The newest day is the interesting one: open scrolled to the right edge,
+    // the way a calendar heatmap is normally read.
+    var scroller = useRef(null);
+    useEffect(function () {
+      if (scroller.current !== null) scroller.current.scrollLeft = scroller.current.scrollWidth;
+    }, [props.metric]);
+    var grid = heatCells(props.trend, props.metric);
+    if (grid.weeks.length === 0) return h("div", { className: "dshtu_meta" }, t("heatEmpty"));
+    var levelOf = function (value) {
+      if (value <= 0) return 0;
+      if (value <= grid.limits[0]) return 1;
+      if (value <= grid.limits[1]) return 2;
+      if (value <= grid.limits[2]) return 3;
+      return 4;
+    };
+    var titled = function (day) {
+      var bucket = props.trend[day] || {};
+      return t("heatCell")
+        .replace("{day}", day)
+        .replace("{total}", fmtValue(bucket.total || 0, unit))
+        .replace("{cost}", fmtMoney(bucket.cost || 0))
+        .replace("{calls}", String(bucket.calls || 0));
+    };
+    var labeled = null;
+    var months = grid.weeks.map(function (column, index) {
+      var firstDay = column.filter(function (day) { return day !== null && day !== "future"; })[0];
+      var label = "";
+      if (firstDay !== undefined) {
+        var month = firstDay.slice(0, 7);
+        if (month !== labeled) {
+          labeled = month;
+          label = monthLabel(firstDay, unit);
+        }
+      }
+      return h("div", { className: "dshtu_heatMonth", key: "m" + index }, label);
+    });
+    var columns = grid.weeks.map(function (column, index) {
+      return h("div", { className: "dshtu_heatCol", key: "w" + index }, column.map(function (day, row) {
+        if (day === null) return h("div", { className: "dshtu_heatCell", key: "p" + index + "-" + row });
+        if (day === "future") return h("div", { className: "dshtu_heatCell", key: "f" + index + "-" + row, "data-future": "true" });
+        var value = grid.valueOf(day);
+        return h("div", {
+          key: day,
+          className: "dshtu_heatCell",
+          title: titled(day),
+          style: { background: value > 0 ? HEAT_LEVELS[levelOf(value)] : undefined }
+        });
+      }));
+    });
+    return h("div", { className: "dshtu_heatCard" },
+      h("div", { className: "dshtu_heatScroll", ref: scroller },
+        h("div", { className: "dshtu_heatMonths" }, months),
+        h("div", { className: "dshtu_heatBody" },
+          h("div", { className: "dshtu_heatDays" }, [
+            h("span", { className: "dshtu_heatDay", key: "1" }, "一"),
+            h("span", { className: "dshtu_heatDay", key: "2" }),
+            h("span", { className: "dshtu_heatDay", key: "3" }, "三"),
+            h("span", { className: "dshtu_heatDay", key: "4" }),
+            h("span", { className: "dshtu_heatDay", key: "5" }, "五"),
+            h("span", { className: "dshtu_heatDay", key: "6" }),
+            h("span", { className: "dshtu_heatDay", key: "7" }, "日")
+          ]),
+          h("div", { className: "dshtu_heat" }, columns))));
+  }
+
+  /** `已安装 / 最新 / 状态` for one tracked package. */
+  function versionRow(t, entry) {
+    var tone = entry.status === "current" ? "ok" : (entry.status === "outdated" ? "warn" : "idle");
+    var label = entry.status === "current" ? t("versionCurrent")
+      : entry.status === "outdated" ? t("versionOutdated")
+      : entry.status === "ahead" ? t("versionAhead") : t("versionUnknown");
+    var glyph = entry.status === "current" ? iconCheck : (entry.status === "outdated" ? iconWarn : iconClock);
+    return h("tr", { key: entry.id },
+      h("td", null,
+        h("span", { className: "dshtu_statLabel" },
+          h("b", null, entry.label),
+          entry.channel !== "stable" ? h("span", { className: "dshtu_nd" }, " · " + t("versionChannel").replace("{channel}", entry.channel)) : null)),
+      h("td", { className: "dshtu_verCell" }, entry.installed === null ? "—" : entry.installed),
+      h("td", { className: "dshtu_verCell" }, entry.latest === null ? "—" : entry.latest),
+      h("td", { className: "dshtu_state", "data-tone": tone },
+        glyph === null ? null : h(glyph, {}),
+        entry.error === null ? label : label + "（" + entry.error + "）"));
+  }
+
+  /** Uptime as `2d 3h` / `45m`, whichever reads better at this scale. */
+  function uptimeText(t, seconds) {
+    var total = seconds || 0;
+    if (total < 3600) return t("runtimeUptimeShort").replace("{minutes}", String(Math.max(1, Math.round(total / 60))));
+    return t("runtimeUptimeValue").replace("{days}", String(Math.floor(total / 86400))).replace("{hours}", String(Math.floor((total % 86400) / 3600)));
+  }
+
+  /**
+   * The configuration tab: what is installed against what the registry offers,
+   * the runtime facts of the process serving this page, and the two buttons that
+   * act on it — a real health check and a confirmed restart.
+   */
+  function ConfigPanel(props) {
+    var t = props.t;
+    var config = props.config;
+    if (config === null) {
+      return h("div", { className: "dshtu_card dshtu_meta" }, props.error === null ? t("loading") : t("error") + ": " + props.error);
+    }
+    var runtime = config.platform || {};
+    var health = props.health;
+    var rows = [];
+    var scan = health && health.state === "ok" ? health.data.scan : null;
+    if (health && health.state === "ok") {
+      var pricing = health.data.pricing || {};
+      var scanText = scan === null ? "—"
+        : scan.error !== undefined && scan.error !== null ? t("healthScanFailed")
+        : scan.done ? t("healthScanDone").replace("{sessions}", scan.sessions).replace("{files}", scan.files).replace("{ms}", scan.ms)
+        : t("healthScanRunning");
+      rows.push(["healthLatency", health.ms + " ms"]);
+      rows.push(["healthEndpoint", health.data.version + (health.data.version === config.version ? "" : " ≠ " + config.version)]);
+      rows.push(["healthScan", scanText]);
+      rows.push(["healthPricing", t("healthPricingValue").replace("{source}", pricing.source || "—").replace("{time}", fmtTime(pricing.fetchedAt || 0))]);
+      rows.push(["healthBuckets", t("healthBucketsValue").replace("{days}", String(Object.keys(health.data.byDay || {}).length)).replace("{models}", String((health.data.models || []).length))]);
+      rows.push(["healthUpdated", fmtTime(health.data.updatedAt)]);
+    }
+    var tone = health === null ? "idle" : health.state === "ok" ? "ok" : health.state === "error" ? "bad" : "idle";
+    var healthLabel = health === null ? null : health.state === "ok" ? t("healthOk") : health.state === "error" ? t("healthFail") + "：" + health.error : t("healthRunning");
+    return h("div", null,
+      h("div", { className: "dshtu_card" },
+        h("div", { className: "dshtu_head" }, iconApi === null ? null : h(iconApi, {}), h("h3", null, t("configVersions"))),
+        h("table", { className: "dshtu_table" },
+          h("thead", null, h("tr", null,
+            h("th", null, t("versionPackage")),
+            h("th", null, t("versionInstalled")),
+            h("th", null, t("versionLatest")),
+            h("th", null, t("versionState")))),
+          h("tbody", null, (config.packages || []).map(function (entry) { return versionRow(t, entry); }))),
+        h("div", { className: "dshtu_bar" },
+          h("span", { className: "dshtu_meta" }, config.checkedAt > 0 ? t("versionChecked").replace("{time}", fmtTime(config.checkedAt)) : ""),
+          h("span", { style: { flex: "1" } }),
+          h(button, {
+            variant: "outline",
+            size: "sm",
+            icon: iconRefresh === null ? null : h(iconRefresh, {}),
+            onClick: props.onRefresh
+          }, t("versionRefresh")))),
+      h("div", { className: "dshtu_card" },
+        h("div", { className: "dshtu_head" }, iconGauge === null ? null : h(iconGauge, {}), h("h3", null, t("configRuntime"))),
+        h("dl", { className: "dshtu_kv" }, [
+          ["runtimePlatform", runtime.osName === undefined ? "—" : runtime.osName + " (" + (runtime.arch || "") + ")"],
+          ["runtimeNode", runtime.node || "—"],
+          ["runtimePid", runtime.pid === undefined ? "—" : String(runtime.pid)],
+          ["runtimePort", runtime.port === null || runtime.port === undefined ? "—" : String(runtime.port)],
+          ["runtimeUptime", runtime.uptimeSec === undefined ? "—" : uptimeText(t, runtime.uptimeSec)],
+          ["runtimeHome", runtime.dshHome || "—"]
+        ].map(function (pair) {
+          return [h("dt", { key: pair[0] }, t(pair[0])), h("dd", { key: pair[0] + "v" }, pair[1])];
+        }).reduce(function (flat, pair) { return flat.concat(pair); }, [])),
+        h("div", { className: "dshtu_acts" },
+          h(button, {
+            variant: "outline",
+            size: "sm",
+            icon: iconCheck === null ? null : h(iconCheck, {}),
+            disabled: health !== null && health.state === "running",
+            onClick: props.onHealth
+          }, t("healthCheck")),
+          config.restartable === false
+            ? h("span", { className: "dshtu_meta" }, t("restartBlocked"))
+            : h(button, {
+              variant: "primary",
+              size: "sm",
+              icon: iconRefresh === null ? null : h(iconRefresh, {}),
+              disabled: props.restart !== null && props.restart.state !== "error",
+              onClick: props.onRestart
+            }, t("restart")),
+          healthLabel === null ? null : h("span", { className: "dshtu_state", "data-tone": tone },
+            health.state === "running" && iconLoading !== null ? h(iconLoading, {}) : null,
+            healthLabel)),
+        rows.length === 0 ? null : h("dl", { className: "dshtu_health" }, rows.map(function (pair) {
+          return [h("dt", { key: pair[0] }, t(pair[0])), h("dd", { key: pair[0] + "v" }, pair[1])];
+        }).reduce(function (flat, pair) { return flat.concat(pair); }, [])),
+        props.restart === null ? null : h("div", { className: "dshtu_meta", style: { marginTop: "10px" } },
+          props.restart.state === "pending" ? t("restartPending")
+            : props.restart.state === "done" ? t("restartDone")
+            : t("restartFailed").replace("{error}", props.restart.error))));
+
+  }
+
   function Tab(props) {
     var t = props.t;
     var _a = useState(null), data = _a[0], setData = _a[1];
@@ -678,6 +1047,24 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     var _j = useState(today()), from = _j[0], setFrom = _j[1];
     var _k = useState(today()), to = _k[0], setTo = _k[1];
     var _l = useState(thisYear()), year = _l[0], setYear = _l[1];
+    var _m = useState(function () {
+      try {
+        var stored = localStorage.getItem("dshtu.tab");
+        return stored === "models" || stored === "projects" || stored === "config" ? stored : "overview";
+      } catch (err) { return "overview"; }
+    }), tab = _m[0], setTab = _m[1];
+    var _n = useState("total"), heatMetric = _n[0], setHeatMetric = _n[1];
+    var _o = useState(null), config = _o[0], setConfig = _o[1];
+    var _p = useState(null), configError = _p[0], setConfigError = _p[1];
+    var _q = useState(0), configTick = _q[0], setConfigTick = _q[1];
+    var _r = useState(null), health = _r[0], setHealth = _r[1];
+    var _s = useState(null), restart = _s[0], setRestart = _s[1];
+    var _t = useState(false), confirming = _t[0], setConfirming = _t[1];
+
+    var switchTab = function (value) {
+      setTab(value);
+      try { localStorage.setItem("dshtu.tab", value); } catch (err) {}
+    };
 
     var switchDays = function (value) {
       setChartDays(value);
@@ -742,6 +1129,85 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
       };
     }, [query, tick]);
 
+    /**
+     * The config tab is the only view that needs a second endpoint, so it is
+     * fetched when (and only when) that tab is open — the versions report is
+     * cache-backed on the host side, so re-entering the tab is cheap.
+     */
+    useEffect(function () {
+      if (tab !== "config") return undefined;
+      var stopped = false;
+      fetch("/dsh-token-use/config", { cache: "no-store" })
+        .then(function (res) {
+          if (res.status === 403) throw new Error(t("remoteDenied"));
+          if (!res.ok) throw new Error("http " + res.status);
+          return res.json();
+        })
+        .then(function (json) {
+          if (!stopped) { setConfig(json); setConfigError(null); }
+        })
+        .catch(function (err) {
+          if (!stopped) setConfigError(String(err));
+        });
+      return function () { stopped = true; };
+    }, [tab, configTick]);
+
+    /** One round trip to the snapshot endpoint, timed, reported as a checklist. */
+    var runHealth = function () {
+      var now = function () { return typeof performance !== "undefined" ? performance.now() : Date.now(); };
+      var started = now();
+      setHealth({ state: "running" });
+      fetch("/dsh-token-use" + query, { cache: "no-store" })
+        .then(function (res) {
+          if (!res.ok) throw new Error("http " + res.status);
+          return res.json();
+        })
+        .then(function (json) {
+          setHealth({ state: "ok", ms: Math.round(now() - started), data: json });
+        })
+        .catch(function (err) {
+          setHealth({ state: "error", error: String(err) });
+        });
+    };
+
+    /**
+     * Restart: the host answers first and runs a detached script that stops and
+     * relaunches the very same command. Polling only starts once the service has
+     * had time to go down (the script waits two seconds), so the first success
+     * cannot be the old process answering.
+     */
+    var doRestart = function () {
+      setConfirming(false);
+      setRestart({ state: "pending" });
+      fetch("/dsh-token-use/restart", { method: "POST", headers: { accept: "application/json" } })
+        .then(function (res) {
+          return res.json().then(function (json) {
+            if (!res.ok) throw new Error(json && json.error ? json.error : "http " + res.status);
+            return json;
+          });
+        })
+        .then(function () {
+          var attempts = 0;
+          setTimeout(function () {
+            var timer = setInterval(function () {
+              attempts++;
+              fetch("/dsh-token-use", { cache: "no-store" })
+                .then(function (res) {
+                  if (!res.ok) return;
+                  clearInterval(timer);
+                  setRestart({ state: "done" });
+                  setTimeout(function () { location.reload(); }, 800);
+                })
+                .catch(function () {});
+              if (attempts > 90) clearInterval(timer);
+            }, 2000);
+          }, 6000);
+        })
+        .catch(function (err) {
+          setRestart({ state: "error", error: String(err) });
+        });
+    };
+
     useEffect(function () {
       // Publish this fiber's stylesheet every mount: a hot reload replaces the
       // component, and the previous fiber's <style> would otherwise keep
@@ -789,51 +1255,71 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     }
     metaParts.push(t("updated").replace("{time}", fmtTime(data.updatedAt)));
     var scanState = data.scan && data.scan.error ? "error" : (data.scan && data.scan.done ? "done" : "ongoing");
-    return h("div", { className: "dshtu_wrap" },
-      h("div", { className: "dshtu_card" },
-        h("div", { className: "dshtu_bar" },
-          h("label", null, t("filterLabel")),
-          h(Dropdown, {
-            value: mode,
-            items: [
-              { id: "day", label: t("filterDay") },
-              { id: "month", label: t("filterMonth") },
-              { id: "year", label: t("filterYear") },
-              { id: "range", label: t("filterRange") },
-              { id: "all", label: t("filterAll") }
-            ],
-            onChange: function (value) { setMode(value); setTick(tick + 1); }
-          }),
-          mode === "day" ? h(input, { type: "date", value: day, onChange: function (event) { setDay(event.target.value); setTick(tick + 1); } }) : null,
-          mode === "month" ? h(input, { type: "month", value: month, onChange: function (event) { setMonth(event.target.value); setTick(tick + 1); } }) : null,
-          mode === "year" ? h(Dropdown, {
-            value: year,
-            items: years.map(function (value) { return { id: value, label: value }; }),
-            onChange: function (value) { setYear(value); setTick(tick + 1); }
-          }) : null,
-          mode === "range" ? h("span", { className: "dshtu_range" },
-            h(input, { type: "date", value: from, onChange: function (event) { pickSpanEnd(event.target.value, "from"); } }),
-            h("em", null, "→"),
-            h(input, { type: "date", value: to, onChange: function (event) { pickSpanEnd(event.target.value, "to"); } })) : null,
-          h("span", { className: "dshtu_field" },
-            h("label", null, t("modelLabel")),
-            h(Dropdown, {
-              value: model,
-              items: [{ id: "", label: t("modelAll") }].concat(models.map(function (name) {
-                return { id: name, label: name };
-              })),
-              onChange: function (value) { setModel(value); setTick(tick + 1); }
-            }))),
+    var rangeItems = [
+      { id: "day", label: t("filterDay") },
+      { id: "month", label: t("filterMonth") },
+      { id: "year", label: t("filterYear") },
+      { id: "range", label: t("filterRange") },
+      { id: "all", label: t("filterAll") }
+    ];
+    /** Every view keeps the same window controls; only the tables below differ. */
+    var rangeControls = [
+      h("label", { key: "label" }, t("filterLabel")),
+      h(Dropdown, {
+        key: "mode",
+        value: mode,
+        items: rangeItems,
+        onChange: function (value) { setMode(value); setTick(tick + 1); }
+      }),
+      mode === "day" ? h(input, { key: "day", type: "date", value: day, onChange: function (event) { setDay(event.target.value); setTick(tick + 1); } }) : null,
+      mode === "month" ? h(input, { key: "month", type: "month", value: month, onChange: function (event) { setMonth(event.target.value); setTick(tick + 1); } }) : null,
+      mode === "year" ? h(Dropdown, {
+        key: "year",
+        value: year,
+        items: years.map(function (value) { return { id: value, label: value }; }),
+        onChange: function (value) { setYear(value); setTick(tick + 1); }
+      }) : null,
+      mode === "range" ? h("span", { key: "range", className: "dshtu_range" },
+        h(input, { type: "date", value: from, onChange: function (event) { pickSpanEnd(event.target.value, "from"); } }),
+        h("em", null, "→"),
+        h(input, { type: "date", value: to, onChange: function (event) { pickSpanEnd(event.target.value, "to"); } })) : null
+    ];
+    var modelControl = h("span", { className: "dshtu_field" },
+      h("label", null, t("modelLabel")),
+      h(Dropdown, {
+        value: model,
+        items: [{ id: "", label: t("modelAll") }].concat(models.map(function (name) {
+          return { id: name, label: name };
+        })),
+        onChange: function (value) { setModel(value); setTick(tick + 1); }
+      }));
+    var projects = shortenProjects(data.byProject);
+    var tabBar = h("div", { className: "dshtu_tabRow" },
+      h("div", { className: "dshtu_tabs" }, [
+        { id: "overview", label: t("tabOverview") },
+        { id: "models", label: t("tabModels") },
+        { id: "projects", label: t("tabProjects") },
+        { id: "config", label: t("tabConfig") }
+      ].map(function (entry) {
+        return h("button", {
+          key: entry.id,
+          type: "button",
+          "data-on": String(tab === entry.id),
+          onClick: function () { switchTab(entry.id); }
+        }, entry.label);
+      })),
+      h("label", null, t("unitLabel")),
+      h("span", { className: "dshtu_chips" }, chips([
+        { value: "zh", label: t("unitZh") },
+        { value: "en", label: t("unitEn") }
+      ], unit, switchUnit)));
+    var overview = [
+      h("div", { className: "dshtu_card", key: "totals" },
+        h("div", { className: "dshtu_bar" }, rangeControls.concat([modelControl])),
         h("div", { className: "dshtu_bar dshtu_subBar" },
           h("span", { className: "dshtu_meta" },
             iconGauge === null ? null : h("span", { className: "dshtu_metaIcon" }, h(iconGauge, {})),
-            t("totals")),
-          h("span", { style: { flex: "1" } }),
-          h("label", null, t("unitLabel")),
-          h("span", { className: "dshtu_chips" }, chips([
-            { value: "zh", label: t("unitZh") },
-            { value: "en", label: t("unitEn") }
-          ], unit, switchUnit))),
+            t("totals"))),
         h("div", { className: "dshtu_grid" },
           statBox(t, t("total"), totals.total, unit, true),
           statBox(t, t("input"), totals.input, unit),
@@ -843,13 +1329,49 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
           statBox(t, t("reasoning"), totals.reasoning, unit),
           statBox(t, t("calls"), totals.calls, unit),
           moneyBox(t, t("costTotal"), totals.cost, pricingNotes(t, data)))),
-      h(TrendChart, { t: t, unit: unit, trend: data.trend, range: chartDays, onRange: switchDays }),
-      table(t, t("byModel"), data.byModel, unit, undefined, modelNotes(t, data.modelPricing)),
-      table(t, t("byDay"), data.byDay, unit),
-      (function () {
-        var projects = shortenProjects(data.byProject);
-        return table(t, t("byProject"), projects.rows, unit, projects.titles);
-      })(),
+      h(TrendChart, { key: "trend", t: t, unit: unit, trend: data.trend, range: chartDays, onRange: switchDays }),
+      h("div", { className: "dshtu_card", key: "heat" },
+        h("div", { className: "dshtu_heatHead" },
+          h("span", { className: "dshtu_cardTitle" },
+            iconTrend === null ? null : h("span", { className: "dshtu_metaIcon" }, h(iconTrend, {})),
+            h("b", null, t("heatmap"))),
+          h("span", { className: "dshtu_meta" }, t("heatmapNote")),
+          h("span", { style: { flex: "1" } }),
+          heatLegend(t),
+          h("span", { className: "dshtu_chips" }, chips([
+            { value: "total", label: t("total") },
+            { value: "cost", label: t("cost") }
+          ], heatMetric, function (value) { setHeatMetric(value); }))),
+        h(Heatmap, { t: t, unit: unit, trend: data.trend.days, metric: heatMetric }))
+    ];
+    var scoped = h("div", { className: "dshtu_card dshtu_slim" }, h("div", { className: "dshtu_bar" }, rangeControls));
+    var views = tab === "overview" ? overview
+      : tab === "models" ? [scoped, table(t, t("byModel"), data.byModel, unit, undefined, modelNotes(t, data.modelPricing))]
+      : tab === "projects" ? [scoped, table(t, t("byProject"), projects.rows, unit, projects.titles)]
+      : [h(ConfigPanel, {
+        key: "config",
+        t: t,
+        config: config,
+        error: configError,
+        health: health,
+        restart: restart,
+        onHealth: runHealth,
+        onRestart: function () { setConfirming(true); },
+        onRefresh: function () { setConfigTick(configTick + 1); }
+      })];
+    return h("div", { className: "dshtu_wrap" },
+      tabBar,
+      views,
+      modal === null ? null : h(modal, {
+        open: confirming,
+        onClose: function () { setConfirming(false); },
+        title: t("restartTitle"),
+        closeLabel: t("close"),
+        footer: h("div", { className: "dshtu_modalFoot" },
+          h(button, { variant: "ghost", size: "sm", onClick: function () { setConfirming(false); } }, t("restartCancel")),
+          h(button, { variant: "primary", size: "sm", onClick: doRestart }, t("restartConfirm")))
+      }, h("div", { className: "dshtu_modalBody" },
+        t("restartBody").replace("{pid}", config === null || config.platform === undefined ? "?" : String(config.platform.pid)))),
       h("div", { className: "dshtu_foot" },
         stateDot === null ? null : h(stateDot, { state: scanState, size: 8 }),
         h("span", { className: "dshtu_meta" }, metaParts.join(" · "))));

@@ -8,15 +8,25 @@ A real-time token usage and cost plugin for DeepSeek Harness: install it, then r
 
 ## Features
 
-- **Cost card** — spend estimated live from DeepSeek's published prices × the usage recorded here, with peak/off-peak rates. Every card (totals, trend, by model, by day, by project) carries an amount.
+Four tabs across the top of the panel: **Overview / By model / By project / Configuration**.
+
+- **Overview** — the cost and totals cards, the trend chart, and a **usage heatmap** (last 12 months, one cell per day, coloured by total tokens or by cost, hover for that day's detail). Range and model filters apply here.
+- **By model** — every model's usage and amount, with the same range query (day / month / year / date range / all).
+- **By project** — every project's usage and amount, same range query.
+- **Configuration** — versions (`dsh-service`, `dsh`, `dsh-base` and this plugin: installed vs the newest release **in the channel you run**, rc/alpha/stable), runtime facts (platform version, Node version, PID, port, uptime, `DSH_HOME`), a **health check** and a confirmed **one-click restart**.
+- **Cost card** — spend estimated live from DeepSeek's published prices × the usage recorded here, with peak/off-peak rates. Every card (totals, trend, by model, by project) carries an amount.
 - **Daily price book** — the official pricing page is fetched once a day at **12:00** and cached locally, so restarts keep it and an offline machine falls back to a built-in snapshot.
 - **Totals card** — estimated cost, total (input + output + cache), input, output, cache read, cache write, reasoning, calls.
 - **Per-model pricing** — cache-hit input, cache-miss input and output are priced separately per model; anything that is not a DeepSeek model (claude, gpt, …) is never counted and shows `—`.
 - **Range dropdown** — by day / by month / by year / date range / all; defaults to by day = today. The date range starts as today → today and keeps its two ends ordered, so a backwards window can never be requested; the year list offers only the years your own logs cover.
-- **Model filter** — the dropdown beside the range tabs narrows every breakdown to one model (including that model's project and per-day rows); defaults to all models.
+- **Model filter** — the dropdown beside the range selector on the overview narrows every breakdown to one model (including that model's project and per-day rows); defaults to all models.
 - **Trend chart** — drawn with a tree-shaken ECharts bundle that ships inside the plugin (no CDN). Cache read / input / output stack into an **area composition** whose top edge is the total (with a total reference line), each day's amount is drawn as **cost bars** against a ¥ axis, and calls live in the tooltip. The card switches between **7 / 30 / 90 days (7 by default)**. A day without usage is a real zero (stacking needs it), and the tooltip still names it; tick labels keep one unit across an axis and monotone smoothing never overshoots. Rendering is imperative, so moving the mouse never re-renders React.
-- **Unit switch** — 亿 / 万 / 千 in Chinese, B / M / K in English; remembered per browser.
-- **Detail tables** — by model, by day and by project, each with an amount column (hover a row for its rates) and a total column.
+- **Unit switch** — 亿 / 万 / 千 in Chinese, B / M / K in English; remembered per browser. The tab bar and the unit switch stay pinned at the top, and the tab you were on is remembered.
+- **Detail tables** — by model and by project (the day dimension lives in the heatmap), each with an amount column (hover a row for its rates) and a total column.
+
+### One-click restart
+
+The button on the configuration tab restarts the dsh web process serving the page. It replays the current command line (`process.argv` plus the working directory), so custom ports and flags survive; it asks for confirmation first, and the page reconnects and reloads itself about 10-30 seconds later. The script lands in `$DSH_HOME/dsh-token-use/restart.sh` and its output in `restart.log`. When a launch cannot be replayed (no executable entry point), the button is disabled with a reason instead.
 
 ## The amounts are estimates
 
@@ -61,7 +71,8 @@ dsh plugin --profile web add /path/to/dsh-token-use
 - The host side **never polls and sets no periodic timer** other than the daily price refresh: it folds usage in O(1) increments from the `session/event` bus (one dictionary addition and one multiplication per `assistant/message`).
 - History is rebuilt **once** at boot by streaming `$DSH_HOME/sessions/**/session.jsonl.zstd` (native zstd from `node:zlib`), yielding the event loop between files (`scheduler.yield()`) so session handling is never blocked. A per-session sequence watermark de-duplicates the rebuild against live events, whatever order they arrive in.
 - **Price refresh**: one HTTPS GET per day at 12:00 local time (15 s timeout, retried an hour later on failure), stored atomically in `$DSH_HOME/dsh-token-use/pricing.json` (up to 30 snapshots). A restart reads the cache synchronously and does not re-fetch; a failed fetch falls back to the built-in snapshot, so the panel always shows numbers.
-- One read-only JSON endpoint is exposed: `GET /dsh-token-use` (loopback only, in-memory snapshot, `no-store`).
+- Three routes are exposed (loopback only, `no-store`): `GET /dsh-token-use` for the snapshot, `GET /dsh-token-use/config` for versions and runtime facts, and `POST /dsh-token-use/restart` for the confirmed restart.
+- **Version checks** read the registry's abbreviated packument (`versions` + `dist-tags`) and compare against the highest release **in the channel you run** (rc / alpha / stable) — `@deepseek-ai/dsh-web-app` keeps a stale `0.0.1-rc.1` on its `latest` tag, so a plain `latest` comparison would report a false upgrade. The answer is cached for 6 hours in `$DSH_HOME/dsh-token-use/versions.json`.
 
 ```sh
 # everything
@@ -73,9 +84,13 @@ curl 'http://127.0.0.1:3080/dsh-token-use?year=2026'
 curl 'http://127.0.0.1:3080/dsh-token-use?from=2026-09-01&to=2026-09-15'
 # a model (combinable with day/month/year/from+to)
 curl 'http://127.0.0.1:3080/dsh-token-use?model=deepseek-v4-flash'
+# versions and runtime facts (the configuration tab)
+curl http://127.0.0.1:3080/dsh-token-use/config
+# restart the service (the configuration tab's button; degrades after 2 s and replays the same command)
+curl -X POST http://127.0.0.1:3080/dsh-token-use/restart
 ```
 
-Every bucket carries a `cost` (the estimate); `pricing` holds the current price book, when it was fetched and when it refreshes next; `modelPricing` maps each observed model to its rates or to the reason it carries no amount.
+Every bucket carries a `cost` (the estimate); `pricing` holds the current price book, when it was fetched and when it refreshes next; `modelPricing` maps each observed model to its rates or to the reason it carries no amount. `trend` spans the last 366 days — the chart takes the last 7/30/90 of it and the heatmap takes the whole run.
 
 ## Development
 

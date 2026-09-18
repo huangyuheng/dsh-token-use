@@ -12,3 +12,8 @@
           enabled: true
           currency: CNY
           refreshHour: 12
+        # Version checks for the configuration tab read npm's packument every six
+        # hours; point `registry` at a mirror on a slow or blocked network.
+        versions:
+          registry: https://registry.npmjs.org
+          ttlMs: 21600000
