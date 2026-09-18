@@ -75,6 +75,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     byProject: "按项目",
     trend: "用量趋势",
     trendNote: "每条折线按自身峰值归一化；悬停查看当日明细",
+    trendAverage: "日均",
     trendNoData: "当日无用量",
     daysSuffix: "天",
     trendEmpty: "当前范围不足两天数据，切换到「按月」或「全部」查看趋势",
@@ -142,6 +143,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     versionChannel: "{channel} 通道",
     versionChecked: "检查于 {time}",
     versionRefresh: "重新检查",
+    versionRefreshing: "检查中…",
     healthCheck: "健康检查",
     healthRunning: "检查中…",
     healthOk: "接口正常",
@@ -233,6 +235,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     byProject: "By project",
     trend: "Usage trend",
     trendNote: "Each line is normalized to its own peak; hover for daily detail",
+    trendAverage: "daily avg",
     trendNoData: "no usage this day",
     daysSuffix: "d",
     trendEmpty: "Fewer than two days in range — switch to By month or All for a trend",
@@ -300,6 +303,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     versionChannel: "{channel} channel",
     versionChecked: "Checked {time}",
     versionRefresh: "Check again",
+    versionRefreshing: "Checking…",
     healthCheck: "Health check",
     healthRunning: "Checking…",
     healthOk: "Endpoint healthy",
@@ -377,7 +381,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     hintServiceVersion: "a service bundle older or newer than the running CLI is a common cause of failed plugin startups"
   };
 
-  var css = ".dshtu_wrap{max-width:860px;display:flex;flex-direction:column;gap:14px;padding:2px 2px 4px;color:var(--dsw-alias-label-primary);font-size:13px}.dshtu_card{background:var(--dsw-alias-bg-layer-3);border-radius:14px;box-shadow:var(--dsw-elevation-stroke);padding:14px 16px}.dshtu_bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_bar label{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_bar .dshtu_select,.dshtu_bar .dshtu_input{border:.5px solid var(--dsw-alias-border-l4);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;border-radius:8px;padding:4px 8px;font-size:12.5px}.dshtu_bar .dshtu_select{width:168px;text-overflow:ellipsis;white-space:nowrap}.dshtu_chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.dshtu_subBar{margin-top:12px}.dshtu_pick{display:inline-flex;align-items:center;gap:4px;max-width:230px}.dshtu_pickLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dshtu_metaIcon{display:inline-flex;align-items:center;margin-right:5px;vertical-align:-2px;color:var(--dsw-alias-label-tertiary)}.dshtu_cardTitle{display:inline-flex;align-items:center}.dshtu_foot{display:flex;align-items:center;gap:6px}.dshtu_statLabel{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.dshtu_field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_seg{display:inline-flex;border:.5px solid var(--dsw-alias-border-l4);border-radius:8px;overflow:hidden}.dshtu_seg button{border:0;background:0 0;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;padding:4px 10px;font-size:12.5px}.dshtu_seg button[data-on=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.dshtu_totalsMeta{margin-top:12px}.dshtu_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:8px}.dshtu_stat{background:var(--dsw-alias-bg-module-platform);border-radius:10px;padding:10px 12px}.dshtu_stat b{display:block;font-size:16px;line-height:24px;font-variant-numeric:tabular-nums}.dshtu_stat span{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_stat[data-main=true]{background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 12%,var(--dsw-alias-bg-module-platform))}.dshtu_stat[data-main=true] b{color:var(--dsw-alias-state-business-primary);font-size:20px}.dshtu_table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.dshtu_table th,.dshtu_table td{text-align:right;padding:6px 8px;border-bottom:.5px solid var(--dsw-alias-border-l2);font-weight:400}.dshtu_table th:first-child,.dshtu_table td:first-child{text-align:left}.dshtu_table th{color:var(--dsw-alias-label-tertiary);font-size:12px;white-space:nowrap}.dshtu_table td:first-child{overflow-wrap:anywhere;max-width:300px;color:var(--dsw-alias-label-secondary)}.dshtu_meta{color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}.dshtu_err{color:var(--dsw-alias-state-error-primary);display:flex;align-items:center;gap:10px}.dshtu_chart{width:100%;height:260px}.dshtu_info{display:inline-flex;align-items:center;justify-content:center;margin-left:6px;color:var(--dsw-alias-label-tertiary);cursor:help}.dshtu_info:hover{color:var(--dsw-alias-state-business-primary)}.dshtu_pop{display:block;max-width:420px;font-size:12px;font-weight:400;line-height:18px;text-align:left;white-space:normal}.dshtu_pop .dshtu_sep{margin:0 5px;opacity:.55}[role=tooltip]:has(.dshtu_pop){background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);padding:10px 12px;border:0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16)}.dshtu_nd{color:var(--dsw-alias-label-tertiary)}.dshtu_range{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_range input{width:132px}.dshtu_range em{font-style:normal;color:var(--dsw-alias-label-tertiary)}.dshtu_tabRow{display:flex;align-items:center;gap:10px}.dshtu_tabs{display:flex;align-items:center;gap:2px;flex:1;flex-wrap:wrap}.dshtu_tabs button{border:0;background:0 0;font:inherit;color:var(--dsw-alias-label-secondary);cursor:pointer;padding:5px 10px 6px;border-bottom:2px solid transparent;font-size:13px}.dshtu_tabs button:hover{color:var(--dsw-alias-label-primary)}.dshtu_tabs button[data-on=true]{color:var(--dsw-alias-label-primary);border-bottom-color:var(--dsw-alias-state-business-primary);font-weight:500}.dshtu_heatCard{display:flex;flex-direction:column;gap:10px}.dshtu_heatHead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_heatScroll{overflow-x:auto;padding-bottom:4px}.dshtu_heatBody{display:flex;gap:3px}.dshtu_heatDays{display:flex;flex-direction:column;gap:3px;width:17px}.dshtu_heatDay{height:11px;font-size:10px;line-height:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heat{display:flex;gap:3px}.dshtu_heatCol{display:flex;flex-direction:column;gap:3px}.dshtu_heatColHead{position:relative;height:13px}.dshtu_heatColLabel{position:absolute;left:0;top:0;font-size:10px;line-height:13px;color:var(--dsw-alias-label-tertiary);white-space:nowrap}.dshtu_heatCell{width:11px;height:11px;border-radius:2px;background:var(--dsw-alias-bg-module-platform)}.dshtu_heatCell[data-future=true]{background:0 0}.dshtu_heatLegend{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heatLegend i{width:11px;height:11px;border-radius:2px;display:inline-block}.dshtu_kv{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:8px;font-size:12.5px}.dshtu_kv dt{color:var(--dsw-alias-label-tertiary)}.dshtu_kv dd{margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.dshtu_acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}.dshtu_health{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:12px;padding-top:10px;border-top:.5px solid var(--dsw-alias-border-l2);font-size:12.5px}.dshtu_health dt{color:var(--dsw-alias-label-tertiary)}.dshtu_health dd{margin:0;font-variant-numeric:tabular-nums}.dshtu_stack{display:flex;flex-direction:column;gap:14px}.dshtu_tblBar{margin-top:12px}.dshtu_checkList{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}.dshtu_head{display:flex;align-items:center;gap:6px;margin-bottom:8px}.dshtu_head h3{margin:0;font-size:13px;font-weight:500}.dshtu_slim .dshtu_bar{margin:0}.dshtu_state{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}.dshtu_state[data-tone=ok]{color:var(--dsw-alias-state-success-primary)}.dshtu_state[data-tone=warn]{color:var(--dsw-alias-state-warning-primary)}.dshtu_state[data-tone=bad]{color:var(--dsw-alias-state-error-primary)}.dshtu_state[data-tone=idle]{color:var(--dsw-alias-label-tertiary)}.dshtu_modalBody{font-size:12.5px;line-height:20px;color:var(--dsw-alias-label-secondary);max-width:420px}.dshtu_modalFoot{display:flex;justify-content:flex-end;gap:8px}.dshtu_verCell{font-variant-numeric:tabular-nums;white-space:nowrap}";
+  var css = ".dshtu_wrap{max-width:860px;display:flex;flex-direction:column;gap:14px;padding:2px 2px 4px;color:var(--dsw-alias-label-primary);font-size:13px}.dshtu_card{background:var(--dsw-alias-bg-layer-3);border-radius:14px;box-shadow:var(--dsw-elevation-stroke);padding:14px 16px}.dshtu_bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_bar label{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_bar .dshtu_select,.dshtu_bar .dshtu_input{border:.5px solid var(--dsw-alias-border-l4);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;border-radius:8px;padding:4px 8px;font-size:12.5px}.dshtu_bar .dshtu_select{width:168px;text-overflow:ellipsis;white-space:nowrap}.dshtu_chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.dshtu_subBar{margin-top:12px}.dshtu_pick{display:inline-flex;align-items:center;gap:4px;max-width:230px}.dshtu_pickLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dshtu_metaIcon{display:inline-flex;align-items:center;margin-right:5px;vertical-align:-2px;color:var(--dsw-alias-label-tertiary)}.dshtu_cardTitle{display:inline-flex;align-items:center}.dshtu_foot{display:flex;align-items:center;gap:6px}.dshtu_statLabel{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.dshtu_field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_seg{display:inline-flex;border:.5px solid var(--dsw-alias-border-l4);border-radius:8px;overflow:hidden}.dshtu_seg button{border:0;background:0 0;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;padding:4px 10px;font-size:12.5px}.dshtu_seg button[data-on=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.dshtu_totalsMeta{margin-top:12px}.dshtu_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:8px}.dshtu_stat{background:var(--dsw-alias-bg-module-platform);border-radius:10px;padding:10px 12px}.dshtu_stat b{display:block;font-size:16px;line-height:24px;font-variant-numeric:tabular-nums}.dshtu_stat span{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_stat[data-main=true]{background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 12%,var(--dsw-alias-bg-module-platform))}.dshtu_stat[data-main=true] b{color:var(--dsw-alias-state-business-primary);font-size:20px}.dshtu_table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.dshtu_table th,.dshtu_table td{text-align:right;padding:6px 8px;border-bottom:.5px solid var(--dsw-alias-border-l2);font-weight:400}.dshtu_table th:first-child,.dshtu_table td:first-child{text-align:left}.dshtu_table th{color:var(--dsw-alias-label-tertiary);font-size:12px;white-space:nowrap}.dshtu_table td:first-child{overflow-wrap:anywhere;max-width:300px;color:var(--dsw-alias-label-secondary)}.dshtu_meta{color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}.dshtu_err{color:var(--dsw-alias-state-error-primary);display:flex;align-items:center;gap:10px}.dshtu_chart{width:100%;height:260px}.dshtu_info{display:inline-flex;align-items:center;justify-content:center;margin-left:6px;color:var(--dsw-alias-label-tertiary);cursor:help}.dshtu_info:hover{color:var(--dsw-alias-state-business-primary)}.dshtu_pop{display:block;max-width:420px;font-size:12px;font-weight:400;line-height:18px;text-align:left;white-space:normal}.dshtu_pop .dshtu_sep{margin:0 5px;opacity:.55}[role=tooltip]:has(.dshtu_pop){background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);padding:10px 12px;border:0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16)}.dshtu_nd{color:var(--dsw-alias-label-tertiary)}.dshtu_range{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_range input{width:132px}.dshtu_range em{font-style:normal;color:var(--dsw-alias-label-tertiary)}.dshtu_tabRow{display:flex;align-items:center;gap:10px}.dshtu_tabs{display:flex;align-items:center;gap:2px;flex:1;flex-wrap:wrap}.dshtu_tabs button{border:0;background:0 0;font:inherit;color:var(--dsw-alias-label-secondary);cursor:pointer;padding:5px 10px 6px;border-bottom:2px solid transparent;font-size:13px}.dshtu_tabs button:hover{color:var(--dsw-alias-label-primary)}.dshtu_tabs button[data-on=true]{color:var(--dsw-alias-label-primary);border-bottom-color:var(--dsw-alias-state-business-primary);font-weight:500}.dshtu_heatCard{position:relative;display:flex;flex-direction:column;gap:10px}.dshtu_heatHead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_heatScroll{overflow-x:auto;padding-bottom:4px}.dshtu_heatBody{display:flex;gap:3px}.dshtu_heatDays{display:flex;flex-direction:column;gap:3px;width:17px}.dshtu_heatDay{height:11px;font-size:10px;line-height:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heat{display:flex;gap:3px}.dshtu_heatCol{display:flex;flex-direction:column;gap:3px}.dshtu_heatColHead{position:relative;height:13px}.dshtu_heatColLabel{position:absolute;left:0;top:0;font-size:10px;line-height:13px;color:var(--dsw-alias-label-tertiary);white-space:nowrap}.dshtu_heatCell{width:11px;height:11px;border-radius:2px;background:var(--dsw-alias-bg-module-platform)}.dshtu_heatCell[data-future=true]{background:0 0}.dshtu_heatCell[data-day]:hover{outline:1.5px solid var(--dsw-alias-state-business-primary);outline-offset:1px}.dshtu_heatTip{position:absolute;z-index:6;transform:translate(-50%,-100%);pointer-events:none;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);padding:6px 9px;font-size:11.5px;line-height:17px;white-space:nowrap;display:flex;flex-direction:column}.dshtu_heatTip b{font-weight:500;margin-bottom:1px}.dshtu_heatTipRow{color:var(--dsw-alias-label-secondary)}.dshtu_heatLegend{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heatLegend i{width:11px;height:11px;border-radius:2px;display:inline-block}.dshtu_kv{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:8px;font-size:12.5px}.dshtu_kv dt{color:var(--dsw-alias-label-tertiary)}.dshtu_kv dd{margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.dshtu_acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}.dshtu_health{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:12px;padding-top:10px;border-top:.5px solid var(--dsw-alias-border-l2);font-size:12.5px}.dshtu_health dt{color:var(--dsw-alias-label-tertiary)}.dshtu_health dd{margin:0;font-variant-numeric:tabular-nums}.dshtu_stack{display:flex;flex-direction:column;gap:14px}.dshtu_tblBar{margin-top:12px}.dshtu_checkList{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}.dshtu_head{display:flex;align-items:center;gap:6px;margin-bottom:8px}.dshtu_head h3{margin:0;font-size:13px;font-weight:500}.dshtu_slim .dshtu_bar{margin:0}.dshtu_state{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}.dshtu_state[data-tone=ok]{color:var(--dsw-alias-state-success-primary)}.dshtu_state[data-tone=warn]{color:var(--dsw-alias-state-warning-primary)}.dshtu_state[data-tone=bad]{color:var(--dsw-alias-state-error-primary)}.dshtu_state[data-tone=idle]{color:var(--dsw-alias-label-tertiary)}.dshtu_modalBody{font-size:12.5px;line-height:20px;color:var(--dsw-alias-label-secondary);max-width:420px}.dshtu_modalFoot{display:flex;justify-content:flex-end;gap:8px}.dshtu_verCell{font-variant-numeric:tabular-nums;white-space:nowrap}";
 
   function trimNum(v, decimals) {
     var f = v.toFixed(decimals);
@@ -562,6 +566,9 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
    * as bars against its own axis. Calls stay in the tooltip — a third value
    * axis would crowd a narrow panel.
    */
+  /** Rose, so the average reference line cannot be mistaken for a component. */
+  var AVERAGE_COLOR = "#f43f5e";
+
   var CHART_SERIES = [
     { key: "cacheRead", label: "cacheRead", color: "#8b5cf6", fill: "rgba(139,92,246,.40)", stack: "tokens" },
     { key: "output", label: "output", color: "#f59e0b", fill: "rgba(245,158,11,.55)", stack: "tokens" },
@@ -599,6 +606,13 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
       var bucket = trend.days[days[index]];
       if (bucket !== undefined && (bucket.calls || 0) > 0 && bucket.total > peak) peak = bucket.total;
     }
+    // The daily average of exactly the window on screen: one flat reference line
+    // that answers "am I above or below my usual day" at a glance.
+    var average = days.length === 0 ? 0 : days.reduce(function (sum, day) {
+      var dayBucket = trend.days[day];
+      return sum + (dayBucket === undefined ? 0 : dayBucket.total || 0);
+    }, 0) / days.length;
+    var showAverage = days.length > 1 && average > 0;
     var scale = axisScale(peak, unit);
     var dot = function (color) {
       return '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + color + ';margin-right:6px;vertical-align:middle"></span>';
@@ -687,6 +701,25 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
           itemStyle: { color: s.color, borderWidth: 0 },
           emphasis: { focus: "series", scale: 1.4 },
           areaStyle: s.stack === undefined ? undefined : { color: s.fill, opacity: 1 },
+          // The average rides the total series, so it shares the token axis and
+          // disappears with the line it describes.
+          markLine: s.key !== "total" || !showAverage ? undefined : {
+            silent: true,
+            symbol: "none",
+            animation: false,
+            precision: 0,
+            lineStyle: { color: AVERAGE_COLOR, width: 2, type: "dashed", opacity: 0.95 },
+            label: {
+              show: true,
+              position: "insideEndTop",
+              distance: 3,
+              color: AVERAGE_COLOR,
+              fontSize: 11,
+              fontWeight: 500,
+              formatter: t("trendAverage") + " " + fmtValue(average, unit)
+            },
+            data: [{ yAxis: average }]
+          },
           data: data
         };
       })
@@ -911,6 +944,8 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     // The newest day is the interesting one: open scrolled to the right edge,
     // the way a calendar heatmap is normally read.
     var scroller = useRef(null);
+    var card = useRef(null);
+    var _a = useState(null), tip = _a[0], setTip = _a[1];
     useEffect(function () {
       if (scroller.current !== null) scroller.current.scrollLeft = scroller.current.scrollWidth;
     }, [props.metric]);
@@ -954,25 +989,53 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
         return h("div", {
           key: day,
           className: "dshtu_heatCell",
-          title: titled(day),
+          "data-day": day,
+          "aria-label": titled(day),
           style: { background: value > 0 ? HEAT_LEVELS[levelOf(value)] : undefined }
         });
       })));
     });
-    return h("div", { className: "dshtu_heatCard" },
-      h("div", { className: "dshtu_heatScroll", ref: scroller },
-        h("div", { className: "dshtu_heatBody" },
-          h("div", { className: "dshtu_heatDays" }, [
-            h("span", { className: "dshtu_heatColHead", key: "head" }),
-            h("span", { className: "dshtu_heatDay", key: "1" }, "一"),
-            h("span", { className: "dshtu_heatDay", key: "2" }),
-            h("span", { className: "dshtu_heatDay", key: "3" }, "三"),
-            h("span", { className: "dshtu_heatDay", key: "4" }),
-            h("span", { className: "dshtu_heatDay", key: "5" }, "五"),
-            h("span", { className: "dshtu_heatDay", key: "6" }),
-            h("span", { className: "dshtu_heatDay", key: "7" }, "日")
-          ]),
-          h("div", { className: "dshtu_heat" }, columns))));
+    // One shared tip, positioned from the hovered cell. The native `title` a cell
+    // would carry has a built-in ~1s delay, which makes 366 cells feel dead.
+    var move = function (event) {
+      var cell = event.target.closest === undefined ? null : event.target.closest(".dshtu_heatCell[data-day]");
+      if (cell === null) {
+        if (tip !== null) setTip(null);
+        return;
+      }
+      var box = cell.getBoundingClientRect();
+      var frame = card.current === null ? null : card.current.getBoundingClientRect();
+      if (frame === null) return;
+      setTip({
+        day: cell.getAttribute("data-day"),
+        x: Math.max(34, Math.min(frame.width - 34, box.left - frame.left + box.width / 2)),
+        y: box.top - frame.top - 4
+      });
+    };
+    return h("div", { className: "dshtu_heatCard", ref: card },
+      h("div", {
+        className: "dshtu_heatScroll",
+        ref: scroller,
+        onMouseMove: move,
+        onMouseLeave: function () { setTip(null); }
+      },
+      h("div", { className: "dshtu_heatBody" },
+        h("div", { className: "dshtu_heatDays" }, [
+          h("span", { className: "dshtu_heatColHead", key: "head" }),
+          h("span", { className: "dshtu_heatDay", key: "1" }, "一"),
+          h("span", { className: "dshtu_heatDay", key: "2" }),
+          h("span", { className: "dshtu_heatDay", key: "3" }, "三"),
+          h("span", { className: "dshtu_heatDay", key: "4" }),
+          h("span", { className: "dshtu_heatDay", key: "5" }, "五"),
+          h("span", { className: "dshtu_heatDay", key: "6" }),
+          h("span", { className: "dshtu_heatDay", key: "7" }, "日")
+        ]),
+        h("div", { className: "dshtu_heat" }, columns))),
+      tip === null ? null : h("div", { className: "dshtu_heatTip", style: { left: tip.x + "px", top: tip.y + "px" } },
+        h("b", null, tip.day),
+        h("span", { className: "dshtu_heatTipRow" }, t("total") + " " + fmtValue((props.trend[tip.day] || {}).total || 0, unit)),
+        h("span", { className: "dshtu_heatTipRow" }, t("cost") + " " + fmtMoney((props.trend[tip.day] || {}).cost || 0)),
+        h("span", { className: "dshtu_heatTipRow" }, t("calls") + " " + ((props.trend[tip.day] || {}).calls || 0))));
   }
 
   /** Replace one probe row in a bundle-probe list. */
@@ -1002,7 +1065,9 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     var harness = props.harness;
     var bundles = props.bundles;
     if (health === null && harness === null) {
-      return h("div", { className: "dshtu_card dshtu_meta" }, t("healthChecking"));
+      // Nothing has run yet: the self-check is opt-in, so its card stays out of
+      // the way until the button is pressed.
+      return null;
     }
     var checks = harness === null ? [] : (harness.checks || []);
     var bundleRows = bundles === null ? [] : bundles;
@@ -1188,9 +1253,10 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
           h(button, {
             variant: "outline",
             size: "sm",
+            disabled: props.refreshing === true,
             icon: iconRefresh === null ? null : h(iconRefresh, {}),
             onClick: props.onRefresh
-          }, t("versionRefresh")))),
+          }, props.refreshing === true ? t("versionRefreshing") : t("versionRefresh")))),
       h("div", { className: "dshtu_card" },
         h("div", { className: "dshtu_head" }, iconGauge === null ? null : h(iconGauge, {}), h("h3", null, t("configRuntime"))),
         h("dl", { className: "dshtu_kv" }, [
@@ -1276,6 +1342,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     var _t = useState(false), confirming = _t[0], setConfirming = _t[1];
     var _u = useState(null), harness = _u[0], setHarness = _u[1];
     var _v = useState(null), bundles = _v[0], setBundles = _v[1];
+    var _w = useState(false), refreshing = _w[0], setRefreshing = _w[1];
 
     var switchTab = function (value) {
       setTab(value);
@@ -1367,6 +1434,24 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
         });
       return function () { stopped = true; };
     }, [tab, configTick]);
+
+    /**
+     * The re-check button. The host caches registry answers for six hours, so a
+     * plain re-entry would re-render the same numbers; `refresh=1` forces a new
+     * lookup and the button reports that it is working.
+     */
+    var refreshConfig = function () {
+      setRefreshing(true);
+      fetch("/dsh-token-use/config?refresh=1", { cache: "no-store" })
+        .then(function (res) {
+          if (res.status === 403) throw new Error(t("remoteDenied"));
+          if (!res.ok) throw new Error("http " + res.status);
+          return res.json();
+        })
+        .then(function (json) { setConfig(json); setConfigError(null); })
+        .catch(function (err) { setConfigError(String(err)); })
+        .then(function () { setRefreshing(false); });
+    };
 
     /**
      * The self-check: one timed snapshot call, the host's harness walk, and a
@@ -1616,7 +1701,8 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
         bundles: bundles,
         onHealth: runHealth,
         onRestart: function () { setConfirming(true); },
-        onRefresh: function () { setConfigTick(configTick + 1); }
+        refreshing: refreshing,
+        onRefresh: refreshConfig
       })];
     return h("div", { className: "dshtu_wrap" },
       tabBar,
