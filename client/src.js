@@ -76,6 +76,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     filterDay: "按天",
     filterRange: "时间段",
     filterMonth: "按月",
+    filterYear: "按年",
     filterLabel: "范围",
     modelLabel: "模型",
     modelAll: "全部模型",
@@ -135,6 +136,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     filterDay: "By day",
     filterRange: "Date range",
     filterMonth: "By month",
+    filterYear: "By year",
     filterLabel: "Range",
     modelLabel: "Model",
     modelAll: "All models",
@@ -215,6 +217,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
 
   var today = function () { return new Date().toISOString().slice(0, 10); };
   var thisMonth = function () { return new Date().toISOString().slice(0, 7); };
+  var thisYear = function () { return new Date().toISOString().slice(0, 4); };
 
   function statBox(t, label, value, unit, main) {
     return h("div", { className: "dshtu_stat", "data-main": main === true },
@@ -240,37 +243,34 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
   }
 
   /**
-   * Model filter. The shell's Menu (the same popover the composer picks models
-   * with) anchored on a pill; a styled native select on a shell without it.
+   * A shell-styled dropdown: the Menu popover (the same one the composer picks
+   * models with) anchored on a pill, showing the current label. Renders a plain
+   * `select` on a shell that has no Menu. Shared by the range window, the year
+   * and the model filter, so their behaviour cannot drift apart.
    */
-  function ModelPicker(props) {
-    var t = props.t;
+  function Dropdown(props) {
     var _a = useState(false), open = _a[0], setOpen = _a[1];
+    var current = props.items.filter(function (item) { return item.id === props.value; })[0];
     if (menu === null) {
       return h("select", {
         className: "dshtu_select",
-        value: props.model,
+        value: props.value,
         onChange: function (event) { props.onChange(event.target.value); }
-      }, [h("option", { key: "", value: "" }, t("modelAll"))].concat(props.models.map(function (name) {
-        return h("option", { key: name, value: name }, name);
-      })));
+      }, props.items.map(function (item) { return h("option", { key: item.id, value: item.id }, item.label); }));
     }
-    var items = [{ id: "", label: t("modelAll") }].concat(props.models.map(function (name) {
-      return { id: name, label: name };
-    }));
     return h(menu, {
       open: open,
       align: "start",
       side: "bottom",
       portal: true,
       compact: true,
-      items: items,
-      selectedId: props.model,
+      items: props.items,
+      selectedId: props.value,
       onSelect: function (id) { props.onChange(id); setOpen(false); },
       onClose: function () { setOpen(false); },
-      anchor: h(chip, { active: props.model !== "", onClick: function () { setOpen(!open); } },
+      anchor: h(chip, { active: true, onClick: function () { setOpen(!open); } },
         h("span", { className: "dshtu_pick" },
-          h("span", { className: "dshtu_pickLabel" }, props.model === "" ? t("modelAll") : props.model),
+          h("span", { className: "dshtu_pickLabel" }, current === undefined ? String(props.value) : current.label),
           iconChevron === null ? null : h(iconChevron, {})))
     });
   }
@@ -657,6 +657,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     // The custom span starts as today → today, i.e. the same window as By day.
     var _j = useState(today()), from = _j[0], setFrom = _j[1];
     var _k = useState(today()), to = _k[0], setTo = _k[1];
+    var _l = useState(thisYear()), year = _l[0], setYear = _l[1];
 
     var switchDays = function (value) {
       setChartDays(value);
@@ -683,6 +684,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     var parts = [];
     if (mode === "day") parts.push("day=" + day);
     if (mode === "month") parts.push("month=" + month);
+    if (mode === "year") parts.push("year=" + year);
     if (mode === "range") parts.push("from=" + from, "to=" + to);
     if (model) parts.push("model=" + encodeURIComponent(model));
     var query = parts.length > 0 ? "?" + parts.join("&") : "";
@@ -753,6 +755,8 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     }
     var totals = data.totals || {};
     var models = (data.models && data.models.length > 0 ? data.models : Object.keys(data.byModel || {}));
+    // Newest year first, and always offer the current one even on an empty log.
+    var years = (data.years && data.years.length > 0 ? data.years : [thisYear()]).slice().reverse();
     var pricing = data.pricing || {};
     setSymbol(pricing.symbol);
     var metaParts = [];
@@ -769,24 +773,35 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
       h("div", { className: "dshtu_card" },
         h("div", { className: "dshtu_bar" },
           h("label", null, t("filterLabel")),
-          h("span", { className: "dshtu_chips" }, chips([
-            { value: "day", label: t("filterDay") },
-            { value: "range", label: t("filterRange") },
-            { value: "month", label: t("filterMonth") },
-            { value: "all", label: t("filterAll") }
-          ], mode, function (value) { setMode(value); setTick(tick + 1); })),
+          h(Dropdown, {
+            value: mode,
+            items: [
+              { id: "day", label: t("filterDay") },
+              { id: "month", label: t("filterMonth") },
+              { id: "year", label: t("filterYear") },
+              { id: "range", label: t("filterRange") },
+              { id: "all", label: t("filterAll") }
+            ],
+            onChange: function (value) { setMode(value); setTick(tick + 1); }
+          }),
           mode === "day" ? h(input, { type: "date", value: day, onChange: function (event) { setDay(event.target.value); setTick(tick + 1); } }) : null,
+          mode === "month" ? h(input, { type: "month", value: month, onChange: function (event) { setMonth(event.target.value); setTick(tick + 1); } }) : null,
+          mode === "year" ? h(Dropdown, {
+            value: year,
+            items: years.map(function (value) { return { id: value, label: value }; }),
+            onChange: function (value) { setYear(value); setTick(tick + 1); }
+          }) : null,
           mode === "range" ? h("span", { className: "dshtu_range" },
             h(input, { type: "date", value: from, onChange: function (event) { pickSpanEnd(event.target.value, "from"); } }),
             h("em", null, "→"),
             h(input, { type: "date", value: to, onChange: function (event) { pickSpanEnd(event.target.value, "to"); } })) : null,
-          mode === "month" ? h(input, { type: "month", value: month, onChange: function (event) { setMonth(event.target.value); setTick(tick + 1); } }) : null,
           h("span", { className: "dshtu_field" },
             h("label", null, t("modelLabel")),
-            h(ModelPicker, {
-              t: t,
-              model: model,
-              models: models,
+            h(Dropdown, {
+              value: model,
+              items: [{ id: "", label: t("modelAll") }].concat(models.map(function (name) {
+                return { id: name, label: name };
+              })),
               onChange: function (value) { setModel(value); setTick(tick + 1); }
             }))),
         h("div", { className: "dshtu_bar dshtu_subBar" },

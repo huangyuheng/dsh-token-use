@@ -12,7 +12,7 @@ A real-time token usage and cost plugin for DeepSeek Harness: install it, then r
 - **Daily price book** — the official pricing page is fetched once a day at **12:00** and cached locally, so restarts keep it and an offline machine falls back to a built-in snapshot.
 - **Totals card** — estimated cost, total (input + output + cache), input, output, cache read, cache write, reasoning, calls.
 - **Per-model pricing** — cache-hit input, cache-miss input and output are priced separately per model; anything that is not a DeepSeek model (claude, gpt, …) is never counted and shows `—`.
-- **Range tabs** — by day / date range / by month / all, with a date, span or month picker; defaults to by day = today. The date range starts as today → today and keeps its two ends ordered, so a backwards window can never be requested.
+- **Range dropdown** — by day / by month / by year / date range / all; defaults to by day = today. The date range starts as today → today and keeps its two ends ordered, so a backwards window can never be requested; the year list offers only the years your own logs cover.
 - **Model filter** — the dropdown beside the range tabs narrows every breakdown to one model (including that model's project and per-day rows); defaults to all models.
 - **Trend chart** — drawn with a tree-shaken ECharts bundle that ships inside the plugin (no CDN). Cache read / input / output stack into an **area composition** whose top edge is the total (with a total reference line), each day's amount is drawn as **cost bars** against a ¥ axis, and calls live in the tooltip. The card switches between **7 / 30 / 90 days (7 by default)**. A day without usage is a real zero (stacking needs it), and the tooltip still names it; tick labels keep one unit across an axis and monotone smoothing never overshoots. Rendering is imperative, so moving the mouse never re-renders React.
 - **Unit switch** — 亿 / 万 / 千 in Chinese, B / M / K in English; remembered per browser.
@@ -66,11 +66,12 @@ dsh plugin --profile web add /path/to/dsh-token-use
 ```sh
 # everything
 curl http://127.0.0.1:3080/dsh-token-use
-# a date / a month / a span
+# a date / a month / a year / a span
 curl 'http://127.0.0.1:3080/dsh-token-use?month=2026-09'
 curl 'http://127.0.0.1:3080/dsh-token-use?day=2026-09-10'
+curl 'http://127.0.0.1:3080/dsh-token-use?year=2026'
 curl 'http://127.0.0.1:3080/dsh-token-use?from=2026-09-01&to=2026-09-15'
-# a model (combinable with day/month/from+to)
+# a model (combinable with day/month/year/from+to)
 curl 'http://127.0.0.1:3080/dsh-token-use?model=deepseek-v4-flash'
 ```
 
