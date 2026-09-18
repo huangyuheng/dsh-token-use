@@ -566,8 +566,11 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
    * as bars against its own axis. Calls stay in the tooltip — a third value
    * axis would crowd a narrow panel.
    */
-  /** Rose, so the average reference line cannot be mistaken for a component. */
-  var AVERAGE_COLOR = "#f43f5e";
+  /**
+   * Orange, one step deeper than the output series' amber (#f59e0b), so the
+   * dashed reference line still reads as its own thing next to that band.
+   */
+  var AVERAGE_COLOR = "#f97316";
 
   var CHART_SERIES = [
     { key: "cacheRead", label: "cacheRead", color: "#8b5cf6", fill: "rgba(139,92,246,.40)", stack: "tokens" },
