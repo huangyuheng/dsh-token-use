@@ -193,7 +193,50 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     runtimeHome: "DSH_HOME",
     runtimeUptimeValue: "{days} 天 {hours} 小时",
     runtimeUptimeShort: "{minutes} 分钟",
-    close: "关闭"
+    close: "关闭",
+    healthResults: "自检结果",
+    healthToneOk: "正常",
+    healthToneWarn: "有提醒",
+    healthToneError: "有问题",
+    healthToneIdle: "未检查",
+    healthSectionEndpoint: "接口",
+    healthSectionClient: "客户端 bundle",
+    healthSectionHarness: "Harness 自检",
+    checkProfile: "Profile 完整性",
+    checkPlugins: "插件包完整性",
+    checkDeps: "依赖解析",
+    checkCordis: "cordis 单实例",
+    checkVersions: "服务包版本一致",
+    bundleOk: "可加载",
+    bundleFailed: "加载失败（http {status}）",
+    bundleNoEntry: "服务端未下发客户端 bundle",
+    bundleSkipped: "服务端插件，无前端 bundle",
+    healthHint: "建议：{hint}",
+    healthChecking: "正在自检…",
+    healthSummaryProfile: "{name} · {dir}",
+    healthSummaryPlugins: "{ok}/{total} 通过",
+    healthSummaryDeps: "{count} 个依赖",
+    healthSummaryCordis: "{copies} 份 cordis",
+    healthSummaryVersions: "服务端 v{version}",
+    codeProvided: "由服务包提供",
+    codeNotInstalled: "未安装",
+    codeModulesMissing: "node_modules 不存在",
+    codeBundlesEmpty: "profile 启动图里没有 bundle",
+    codeEntryMissing: "入口文件缺失：{detail}",
+    codeEntryUndeclared: "未声明入口（exports[\".\"] / main）",
+    codePatchMissing: "bundle patch 缺失：{detail}",
+    codeClientMissing: "前端 bundle 缺失：{detail}",
+    codeClientUndeclared: "声明了 dsh.client，但没有 exports[\"./client\"]",
+    codeUnresolved: "无法从服务端解析",
+    codeServiceMismatch: "与服务端版本不一致",
+    hintNoProfile: "在 {root} 下找不到包含本插件的 profile",
+    hintInstall: "在该 profile 里执行 dsh plugin install",
+    hintAdd: "用 dsh plugin add {name} 安装它",
+    hintReinstall: "重新安装该插件：发布的包文件不完整",
+    hintBundlesEmpty: "profile 的启动图里没有 bundle，插件不会被加载",
+    hintCordisMixed: "运行时 import cordis 的插件必须共用同一份、同一版本",
+    hintCordisDuplicate: "版本相同但路径不同（link 安装会解析到自己的副本），只有运行时 import cordis 的插件会受影响",
+    hintServiceVersion: "服务端 bundle 与正在运行的 CLI 版本不一致，是插件起不来的常见原因"
   };
   var en = {
     tab: "Token usage",
@@ -308,10 +351,53 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     runtimeHome: "DSH_HOME",
     runtimeUptimeValue: "{days}d {hours}h",
     runtimeUptimeShort: "{minutes}m",
-    close: "Close"
+    close: "Close",
+    healthResults: "Self-check",
+    healthToneOk: "Healthy",
+    healthToneWarn: "Attention",
+    healthToneError: "Problems",
+    healthToneIdle: "Not checked",
+    healthSectionEndpoint: "Endpoint",
+    healthSectionClient: "Client bundles",
+    healthSectionHarness: "Harness self-check",
+    checkProfile: "Profile integrity",
+    checkPlugins: "Plugin packages",
+    checkDeps: "Dependency resolution",
+    checkCordis: "Single cordis instance",
+    checkVersions: "Service bundle versions",
+    bundleOk: "loads",
+    bundleFailed: "failed to load (http {status})",
+    bundleNoEntry: "the server published no client bundle for this plugin",
+    bundleSkipped: "server-side plugin, no client bundle",
+    healthHint: "Try: {hint}",
+    healthChecking: "Running the self-check…",
+    healthSummaryProfile: "{name} · {dir}",
+    healthSummaryPlugins: "{ok}/{total} ok",
+    healthSummaryDeps: "{count} declared",
+    healthSummaryCordis: "{copies} copies of cordis",
+    healthSummaryVersions: "service v{version}",
+    codeProvided: "provided by the service",
+    codeNotInstalled: "not installed",
+    codeModulesMissing: "node_modules is missing",
+    codeBundlesEmpty: "the boot graph lists no bundles",
+    codeEntryMissing: "entry file missing: {detail}",
+    codeEntryUndeclared: "no entry declared (exports[\".\"] / main)",
+    codePatchMissing: "bundle patch missing: {detail}",
+    codeClientMissing: "client bundle missing: {detail}",
+    codeClientUndeclared: "dsh.client declared but no exports[\"./client\"]",
+    codeUnresolved: "not resolvable from the service",
+    codeServiceMismatch: "differs from the service",
+    hintNoProfile: "no profile under {root} lists this plugin",
+    hintInstall: "run dsh plugin install in that profile",
+    hintAdd: "install it with dsh plugin add {name}",
+    hintReinstall: "reinstall this plugin: its published files are incomplete",
+    hintBundlesEmpty: "with no bundles the profile loads no plugins",
+    hintCordisMixed: "plugins that import cordis at runtime must share one copy and one version",
+    hintCordisDuplicate: "same version, different paths (a linked plugin resolves its own copy) — harmless unless the plugin imports cordis at runtime",
+    hintServiceVersion: "a service bundle older or newer than the running CLI is a common cause of failed plugin startups"
   };
 
-  var css = ".dshtu_wrap{max-width:860px;display:flex;flex-direction:column;gap:14px;padding:2px 2px 4px;color:var(--dsw-alias-label-primary);font-size:13px}.dshtu_card{background:var(--dsw-alias-bg-layer-3);border-radius:14px;box-shadow:var(--dsw-elevation-stroke);padding:14px 16px}.dshtu_bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_bar label{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_bar .dshtu_select,.dshtu_bar .dshtu_input{border:.5px solid var(--dsw-alias-border-l4);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;border-radius:8px;padding:4px 8px;font-size:12.5px}.dshtu_bar .dshtu_select{width:168px;text-overflow:ellipsis;white-space:nowrap}.dshtu_chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.dshtu_subBar{margin-top:12px}.dshtu_pick{display:inline-flex;align-items:center;gap:4px;max-width:230px}.dshtu_pickLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dshtu_metaIcon{display:inline-flex;align-items:center;margin-right:5px;vertical-align:-2px;color:var(--dsw-alias-label-tertiary)}.dshtu_cardTitle{display:inline-flex;align-items:center}.dshtu_foot{display:flex;align-items:center;gap:6px}.dshtu_statLabel{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.dshtu_field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_seg{display:inline-flex;border:.5px solid var(--dsw-alias-border-l4);border-radius:8px;overflow:hidden}.dshtu_seg button{border:0;background:0 0;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;padding:4px 10px;font-size:12.5px}.dshtu_seg button[data-on=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.dshtu_totalsMeta{margin-top:12px}.dshtu_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:8px}.dshtu_stat{background:var(--dsw-alias-bg-module-platform);border-radius:10px;padding:10px 12px}.dshtu_stat b{display:block;font-size:16px;line-height:24px;font-variant-numeric:tabular-nums}.dshtu_stat span{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_stat[data-main=true]{background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 12%,var(--dsw-alias-bg-module-platform))}.dshtu_stat[data-main=true] b{color:var(--dsw-alias-state-business-primary);font-size:20px}.dshtu_table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.dshtu_table th,.dshtu_table td{text-align:right;padding:6px 8px;border-bottom:.5px solid var(--dsw-alias-border-l2);font-weight:400}.dshtu_table th:first-child,.dshtu_table td:first-child{text-align:left}.dshtu_table th{color:var(--dsw-alias-label-tertiary);font-size:12px;white-space:nowrap}.dshtu_table td:first-child{overflow-wrap:anywhere;max-width:300px;color:var(--dsw-alias-label-secondary)}.dshtu_meta{color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}.dshtu_err{color:var(--dsw-alias-state-error-primary);display:flex;align-items:center;gap:10px}.dshtu_chart{width:100%;height:260px}.dshtu_info{display:inline-flex;align-items:center;justify-content:center;margin-left:6px;color:var(--dsw-alias-label-tertiary);cursor:help}.dshtu_info:hover{color:var(--dsw-alias-state-business-primary)}.dshtu_pop{display:block;max-width:420px;font-size:12px;font-weight:400;line-height:18px;text-align:left;white-space:normal}.dshtu_pop .dshtu_sep{margin:0 5px;opacity:.55}[role=tooltip]:has(.dshtu_pop){background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);padding:10px 12px;border:0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16)}.dshtu_nd{color:var(--dsw-alias-label-tertiary)}.dshtu_range{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_range input{width:132px}.dshtu_range em{font-style:normal;color:var(--dsw-alias-label-tertiary)}.dshtu_tabRow{display:flex;align-items:center;gap:10px;border-bottom:.5px solid var(--dsw-alias-border-l2);padding-bottom:2px}.dshtu_tabs{display:flex;align-items:center;gap:2px;flex:1;flex-wrap:wrap}.dshtu_tabs button{border:0;background:0 0;font:inherit;color:var(--dsw-alias-label-secondary);cursor:pointer;padding:6px 10px;border-bottom:2px solid transparent;margin-bottom:-3px;font-size:13px}.dshtu_tabs button:hover{color:var(--dsw-alias-label-primary)}.dshtu_tabs button[data-on=true]{color:var(--dsw-alias-label-primary);border-bottom-color:var(--dsw-alias-state-business-primary);font-weight:500}.dshtu_heatCard{display:flex;flex-direction:column;gap:10px}.dshtu_heatHead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_heatScroll{overflow-x:auto;padding-bottom:4px}.dshtu_heatMonths{display:flex;gap:3px;margin-left:20px;height:14px}.dshtu_heatMonth{width:11px;font-size:10px;line-height:14px;color:var(--dsw-alias-label-tertiary);white-space:nowrap}.dshtu_heatBody{display:flex;gap:3px}.dshtu_heatDays{display:flex;flex-direction:column;gap:3px;width:17px}.dshtu_heatDay{height:11px;font-size:10px;line-height:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heat{display:flex;gap:3px}.dshtu_heatCol{display:flex;flex-direction:column;gap:3px}.dshtu_heatCell{width:11px;height:11px;border-radius:2px;background:var(--dsw-alias-bg-module-platform)}.dshtu_heatCell[data-future=true]{background:0 0}.dshtu_heatLegend{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heatLegend i{width:11px;height:11px;border-radius:2px;display:inline-block}.dshtu_kv{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:8px;font-size:12.5px}.dshtu_kv dt{color:var(--dsw-alias-label-tertiary)}.dshtu_kv dd{margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.dshtu_acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}.dshtu_health{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:12px;padding-top:10px;border-top:.5px solid var(--dsw-alias-border-l2);font-size:12.5px}.dshtu_health dt{color:var(--dsw-alias-label-tertiary)}.dshtu_health dd{margin:0;font-variant-numeric:tabular-nums}.dshtu_head{display:flex;align-items:center;gap:6px;margin-bottom:8px}.dshtu_head h3{margin:0;font-size:13px;font-weight:500}.dshtu_slim .dshtu_bar{margin:0}.dshtu_state{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}.dshtu_state[data-tone=ok]{color:var(--dsw-alias-state-success-primary)}.dshtu_state[data-tone=warn]{color:var(--dsw-alias-state-warning-primary)}.dshtu_state[data-tone=bad]{color:var(--dsw-alias-state-error-primary)}.dshtu_state[data-tone=idle]{color:var(--dsw-alias-label-tertiary)}.dshtu_modalBody{font-size:12.5px;line-height:20px;color:var(--dsw-alias-label-secondary);max-width:420px}.dshtu_modalFoot{display:flex;justify-content:flex-end;gap:8px}.dshtu_verCell{font-variant-numeric:tabular-nums;white-space:nowrap}";
+  var css = ".dshtu_wrap{max-width:860px;display:flex;flex-direction:column;gap:14px;padding:2px 2px 4px;color:var(--dsw-alias-label-primary);font-size:13px}.dshtu_card{background:var(--dsw-alias-bg-layer-3);border-radius:14px;box-shadow:var(--dsw-elevation-stroke);padding:14px 16px}.dshtu_bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_bar label{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_bar .dshtu_select,.dshtu_bar .dshtu_input{border:.5px solid var(--dsw-alias-border-l4);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;border-radius:8px;padding:4px 8px;font-size:12.5px}.dshtu_bar .dshtu_select{width:168px;text-overflow:ellipsis;white-space:nowrap}.dshtu_chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.dshtu_subBar{margin-top:12px}.dshtu_pick{display:inline-flex;align-items:center;gap:4px;max-width:230px}.dshtu_pickLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dshtu_metaIcon{display:inline-flex;align-items:center;margin-right:5px;vertical-align:-2px;color:var(--dsw-alias-label-tertiary)}.dshtu_cardTitle{display:inline-flex;align-items:center}.dshtu_foot{display:flex;align-items:center;gap:6px}.dshtu_statLabel{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.dshtu_field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_seg{display:inline-flex;border:.5px solid var(--dsw-alias-border-l4);border-radius:8px;overflow:hidden}.dshtu_seg button{border:0;background:0 0;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;padding:4px 10px;font-size:12.5px}.dshtu_seg button[data-on=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.dshtu_totalsMeta{margin-top:12px}.dshtu_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:8px}.dshtu_stat{background:var(--dsw-alias-bg-module-platform);border-radius:10px;padding:10px 12px}.dshtu_stat b{display:block;font-size:16px;line-height:24px;font-variant-numeric:tabular-nums}.dshtu_stat span{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_stat[data-main=true]{background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 12%,var(--dsw-alias-bg-module-platform))}.dshtu_stat[data-main=true] b{color:var(--dsw-alias-state-business-primary);font-size:20px}.dshtu_table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.dshtu_table th,.dshtu_table td{text-align:right;padding:6px 8px;border-bottom:.5px solid var(--dsw-alias-border-l2);font-weight:400}.dshtu_table th:first-child,.dshtu_table td:first-child{text-align:left}.dshtu_table th{color:var(--dsw-alias-label-tertiary);font-size:12px;white-space:nowrap}.dshtu_table td:first-child{overflow-wrap:anywhere;max-width:300px;color:var(--dsw-alias-label-secondary)}.dshtu_meta{color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}.dshtu_err{color:var(--dsw-alias-state-error-primary);display:flex;align-items:center;gap:10px}.dshtu_chart{width:100%;height:260px}.dshtu_info{display:inline-flex;align-items:center;justify-content:center;margin-left:6px;color:var(--dsw-alias-label-tertiary);cursor:help}.dshtu_info:hover{color:var(--dsw-alias-state-business-primary)}.dshtu_pop{display:block;max-width:420px;font-size:12px;font-weight:400;line-height:18px;text-align:left;white-space:normal}.dshtu_pop .dshtu_sep{margin:0 5px;opacity:.55}[role=tooltip]:has(.dshtu_pop){background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);padding:10px 12px;border:0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16)}.dshtu_nd{color:var(--dsw-alias-label-tertiary)}.dshtu_range{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_range input{width:132px}.dshtu_range em{font-style:normal;color:var(--dsw-alias-label-tertiary)}.dshtu_tabRow{display:flex;align-items:center;gap:10px}.dshtu_tabs{display:flex;align-items:center;gap:2px;flex:1;flex-wrap:wrap}.dshtu_tabs button{border:0;background:0 0;font:inherit;color:var(--dsw-alias-label-secondary);cursor:pointer;padding:5px 10px 6px;border-bottom:2px solid transparent;font-size:13px}.dshtu_tabs button:hover{color:var(--dsw-alias-label-primary)}.dshtu_tabs button[data-on=true]{color:var(--dsw-alias-label-primary);border-bottom-color:var(--dsw-alias-state-business-primary);font-weight:500}.dshtu_heatCard{display:flex;flex-direction:column;gap:10px}.dshtu_heatHead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_heatScroll{overflow-x:auto;padding-bottom:4px}.dshtu_heatBody{display:flex;gap:3px}.dshtu_heatDays{display:flex;flex-direction:column;gap:3px;width:17px}.dshtu_heatDay{height:11px;font-size:10px;line-height:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heat{display:flex;gap:3px}.dshtu_heatCol{display:flex;flex-direction:column;gap:3px}.dshtu_heatColHead{position:relative;height:13px}.dshtu_heatColLabel{position:absolute;left:0;top:0;font-size:10px;line-height:13px;color:var(--dsw-alias-label-tertiary);white-space:nowrap}.dshtu_heatCell{width:11px;height:11px;border-radius:2px;background:var(--dsw-alias-bg-module-platform)}.dshtu_heatCell[data-future=true]{background:0 0}.dshtu_heatLegend{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heatLegend i{width:11px;height:11px;border-radius:2px;display:inline-block}.dshtu_kv{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:8px;font-size:12.5px}.dshtu_kv dt{color:var(--dsw-alias-label-tertiary)}.dshtu_kv dd{margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.dshtu_acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}.dshtu_health{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:12px;padding-top:10px;border-top:.5px solid var(--dsw-alias-border-l2);font-size:12.5px}.dshtu_health dt{color:var(--dsw-alias-label-tertiary)}.dshtu_health dd{margin:0;font-variant-numeric:tabular-nums}.dshtu_stack{display:flex;flex-direction:column;gap:14px}.dshtu_tblBar{margin-top:12px}.dshtu_checkList{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}.dshtu_head{display:flex;align-items:center;gap:6px;margin-bottom:8px}.dshtu_head h3{margin:0;font-size:13px;font-weight:500}.dshtu_slim .dshtu_bar{margin:0}.dshtu_state{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}.dshtu_state[data-tone=ok]{color:var(--dsw-alias-state-success-primary)}.dshtu_state[data-tone=warn]{color:var(--dsw-alias-state-warning-primary)}.dshtu_state[data-tone=bad]{color:var(--dsw-alias-state-error-primary)}.dshtu_state[data-tone=idle]{color:var(--dsw-alias-label-tertiary)}.dshtu_modalBody{font-size:12.5px;line-height:20px;color:var(--dsw-alias-label-secondary);max-width:420px}.dshtu_modalFoot{display:flex;justify-content:flex-end;gap:8px}.dshtu_verCell{font-variant-numeric:tabular-nums;white-space:nowrap}";
 
   function trimNum(v, decimals) {
     var f = v.toFixed(decimals);
@@ -866,7 +952,10 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
         .replace("{calls}", String(bucket.calls || 0));
     };
     var labeled = null;
-    var months = grid.weeks.map(function (column, index) {
+    // The month label lives inside its own week column (absolutely positioned, so
+    // it can overflow without widening the 11px column), which keeps it aligned
+    // with the cells underneath no matter how the row is scrolled or sized.
+    var columns = grid.weeks.map(function (column, index) {
       var firstDay = column.filter(function (day) { return day !== null && day !== "future"; })[0];
       var label = "";
       if (firstDay !== undefined) {
@@ -876,10 +965,9 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
           label = monthLabel(firstDay, unit);
         }
       }
-      return h("div", { className: "dshtu_heatMonth", key: "m" + index }, label);
-    });
-    var columns = grid.weeks.map(function (column, index) {
-      return h("div", { className: "dshtu_heatCol", key: "w" + index }, column.map(function (day, row) {
+      var head = h("div", { className: "dshtu_heatColHead", key: "h" + index },
+        label === "" ? null : h("span", { className: "dshtu_heatColLabel" }, label));
+      return h("div", { className: "dshtu_heatCol", key: "w" + index }, [head].concat(column.map(function (day, row) {
         if (day === null) return h("div", { className: "dshtu_heatCell", key: "p" + index + "-" + row });
         if (day === "future") return h("div", { className: "dshtu_heatCell", key: "f" + index + "-" + row, "data-future": "true" });
         var value = grid.valueOf(day);
@@ -889,13 +977,13 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
           title: titled(day),
           style: { background: value > 0 ? HEAT_LEVELS[levelOf(value)] : undefined }
         });
-      }));
+      })));
     });
     return h("div", { className: "dshtu_heatCard" },
       h("div", { className: "dshtu_heatScroll", ref: scroller },
-        h("div", { className: "dshtu_heatMonths" }, months),
         h("div", { className: "dshtu_heatBody" },
           h("div", { className: "dshtu_heatDays" }, [
+            h("span", { className: "dshtu_heatColHead", key: "head" }),
             h("span", { className: "dshtu_heatDay", key: "1" }, "一"),
             h("span", { className: "dshtu_heatDay", key: "2" }),
             h("span", { className: "dshtu_heatDay", key: "3" }, "三"),
@@ -905,6 +993,145 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
             h("span", { className: "dshtu_heatDay", key: "7" }, "日")
           ]),
           h("div", { className: "dshtu_heat" }, columns))));
+  }
+
+  /** Replace one probe row in a bundle-probe list. */
+  function updateRow(list, name, patch) {
+    return list.map(function (row) {
+      return row.name === name ? { name: row.name, status: patch.status, detail: patch.detail } : row;
+    });
+  }
+
+  /** `628 KB` — only when the response actually declares its length. */
+  function sizeText(response) {
+    var length = response.headers.get("content-length");
+    if (length === null) return "";
+    var kb = Math.round(Number(length) / 1024);
+    return Number.isFinite(kb) && kb > 0 ? " · " + kb + " KB" : "";
+  }
+
+  /**
+   * The self-check report: what this endpoint answers, what the browser can
+   * actually load, and what the host found wrong inside the profile. The client
+   * bundle check has to live here — the served URL carries a build revision that
+   * only the boot manifest knows, so the browser is the only honest prober.
+   */
+  function HealthPanel(props) {
+    var t = props.t;
+    var health = props.health;
+    var harness = props.harness;
+    var bundles = props.bundles;
+    if (health === null && harness === null) {
+      return h("div", { className: "dshtu_card dshtu_meta" }, t("healthChecking"));
+    }
+    var checks = harness === null ? [] : (harness.checks || []);
+    var bundleRows = bundles === null ? [] : bundles;
+    var statuses = checks.map(function (check) { return check.status; }).concat(bundleRows.map(function (row) { return row.status; }));
+    if (health !== null && health.state === "error") statuses.push("error");
+    var tone = statuses.indexOf("error") !== -1 ? "bad" : statuses.indexOf("warn") !== -1 ? "warn" : health === null || health.state === "running" ? "idle" : "ok";
+    var toneLabel = tone === "bad" ? t("healthToneError") : tone === "warn" ? t("healthToneWarn") : tone === "ok" ? t("healthToneOk") : t("healthToneIdle");
+    var row = function (key, label, value, status) {
+      return [
+        h("dt", { key: key }, label),
+        h("dd", { key: key + "v" },
+          status === undefined ? null : h("span", { className: "dshtu_state", "data-tone": status === "ok" ? "ok" : status === "error" ? "bad" : "warn" },
+            status === "ok" ? (iconCheck === null ? null : h(iconCheck, {})) : status === "error" ? (iconWarn === null ? null : h(iconWarn, {})) : (iconClock === null ? null : h(iconClock, {})),
+            " "),
+          value)
+      ];
+    };
+    var endpointRows = [];
+    if (health !== null && health.state === "ok") {
+      var scan = health.data.scan;
+      var pricing = health.data.pricing || {};
+      endpointRows = endpointRows.concat(row("latency", t("healthLatency"), health.ms + " ms", "ok"));
+      endpointRows = endpointRows.concat(row("version", t("healthEndpoint"), health.data.version, health.data.version === props.version ? "ok" : "warn"));
+      endpointRows = endpointRows.concat(row("scan", t("healthScan"),
+        scan === null ? "—" : scan.error !== undefined && scan.error !== null ? t("healthScanFailed") : scan.done
+          ? t("healthScanDone").replace("{sessions}", scan.sessions).replace("{files}", scan.files).replace("{ms}", scan.ms)
+          : t("healthScanRunning"),
+        scan === null ? "warn" : scan.error !== undefined && scan.error !== null ? "error" : "ok"));
+      endpointRows = endpointRows.concat(row("pricing", t("healthPricing"),
+        t("healthPricingValue").replace("{source}", pricing.source || "—").replace("{time}", fmtTime(pricing.fetchedAt || 0)),
+        (pricing.fetchedAt || 0) > 0 ? "ok" : "warn"));
+      endpointRows = endpointRows.concat(row("buckets", t("healthBuckets"),
+        t("healthBucketsValue").replace("{days}", String(Object.keys(health.data.byDay || {}).length)).replace("{models}", String((health.data.models || []).length)),
+        "ok"));
+      endpointRows = endpointRows.concat(row("updated", t("healthUpdated"), fmtTime(health.data.updatedAt), "ok"));
+    } else if (health !== null && health.state === "error") {
+      endpointRows = endpointRows.concat(row("failed", t("healthFail"), health.error, "error"));
+    }
+    var checkLabel = {
+      profile: "checkProfile",
+      plugins: "checkPlugins",
+      deps: "checkDeps",
+      cordis: "checkCordis",
+      versions: "checkVersions"
+    };
+    /** The host reports structure; every sentence is composed here. */
+    var summaryOf = function (check) {
+      var data = check.data || {};
+      if (check.id === "profile") {
+        return data.name === undefined
+          ? t("hintNoProfile").replace("{root}", data.root || "")
+          : t("healthSummaryProfile").replace("{name}", data.name).replace("{dir}", data.dir);
+      }
+      if (check.id === "plugins") return t("healthSummaryPlugins").replace("{ok}", String(data.ok)).replace("{total}", String(data.total));
+      if (check.id === "deps") return t("healthSummaryDeps").replace("{count}", String(data.count));
+      if (check.id === "cordis") return t("healthSummaryCordis").replace("{copies}", String(data.copies));
+      if (check.id === "versions") return data.commandVersion === null ? t("versionUnknown") : t("healthSummaryVersions").replace("{version}", data.commandVersion);
+      return "";
+    };
+    var codeText = function (item) {
+      if (item.code === undefined || item.code === null) return item.detail;
+      return item.code.split("+").map(function (code) {
+        var key = "code" + code.charAt(0).toUpperCase() + code.slice(1).replace(/-([a-z])/g, function (all, letter) { return letter.toUpperCase(); });
+        return t(key).replace("{detail}", item.detail === null || item.detail === undefined ? "" : item.detail);
+      }).join("；");
+    };
+    var hintText = function (hint, name) {
+      if (hint === undefined || hint === null) return null;
+      var key = "hint" + hint.charAt(0).toUpperCase() + hint.slice(1).replace(/-([a-z])/g, function (all, letter) { return letter.toUpperCase(); });
+      return t(key).replace("{name}", name === undefined ? "" : name);
+    };
+    var detailLine = function (item, index) {
+      var text = codeText(item);
+      return h("li", { key: (item.name || "") + index, className: "dshtu_meta" },
+        item.name === undefined || item.name === "" ? null : item.name + " — ",
+        text.length === 0 ? null : text,
+        hintText(item.hint, item.name) === null ? null : h("span", null, " · " + t("healthHint").replace("{hint}", hintText(item.hint, item.name))));
+    };
+    return h("div", { className: "dshtu_card" },
+      h("div", { className: "dshtu_head" },
+        iconCheck === null ? null : h(iconCheck, {}),
+        h("h3", null, t("healthResults")),
+        h("span", { style: { flex: "1" } }),
+        h("span", { className: "dshtu_state", "data-tone": tone }, toneLabel)),
+      endpointRows.length === 0 ? null : h("div", null,
+        h("div", { className: "dshtu_meta" }, t("healthSectionEndpoint")),
+        h("dl", { className: "dshtu_health" }, endpointRows)),
+      bundleRows.length === 0 ? null : h("div", null,
+        h("div", { className: "dshtu_meta", style: { marginTop: "10px" } }, t("healthSectionClient")),
+        h("dl", { className: "dshtu_health" }, bundleRows.map(function (entry) {
+          return [h("dt", { key: entry.name }, entry.name), h("dd", { key: entry.name + "v" }, h("span", { className: "dshtu_state", "data-tone": entry.status === "ok" ? "ok" : entry.status === "error" ? "bad" : "warn" }, entry.detail))];
+        }).reduce(function (flat, pair) { return flat.concat(pair); }, []))),
+      checks.length === 0 ? null : h("div", null,
+        h("div", { className: "dshtu_meta", style: { marginTop: "10px" } }, t("healthSectionHarness")),
+        h("dl", { className: "dshtu_health" }, checks.map(function (check) {
+          var glyph = check.status === "ok" ? iconCheck : check.status === "error" ? iconWarn : iconClock;
+          var failing = (check.items || []).filter(function (item) { return item.status !== "ok"; });
+          var hint = hintText(check.hint, undefined);
+          return [
+            h("dt", { key: check.id }, checkLabel[check.id] === undefined ? check.id : t(checkLabel[check.id])),
+            h("dd", { key: check.id + "v" },
+              h("span", { className: "dshtu_state", "data-tone": check.status === "ok" ? "ok" : check.status === "error" ? "bad" : "warn" },
+                glyph === null ? null : h(glyph, {}),
+                " ",
+                summaryOf(check)),
+              failing.length === 0 ? null : h("ul", { className: "dshtu_checkList" }, failing.slice(0, 8).map(detailLine)),
+              hint === null || check.status === "ok" ? null : h("div", { className: "dshtu_meta" }, t("healthHint").replace("{hint}", hint)))
+          ];
+        }).reduce(function (flat, pair) { return flat.concat(pair); }, []))));
   }
 
   /** `已安装 / 最新 / 状态` for one tracked package. */
@@ -921,9 +1148,11 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
           entry.channel !== "stable" ? h("span", { className: "dshtu_nd" }, " · " + t("versionChannel").replace("{channel}", entry.channel)) : null)),
       h("td", { className: "dshtu_verCell" }, entry.installed === null ? "—" : entry.installed),
       h("td", { className: "dshtu_verCell" }, entry.latest === null ? "—" : entry.latest),
-      h("td", { className: "dshtu_state", "data-tone": tone },
+      // The status stays a real table cell so its column lines up with the
+      // header; the inline-flex badge lives inside it.
+      h("td", null, h("span", { className: "dshtu_state", "data-tone": tone },
         glyph === null ? null : h(glyph, {}),
-        entry.error === null ? label : label + "（" + entry.error + "）"));
+        entry.error === null ? label : label + "（" + entry.error + "）")));
   }
 
   /** Uptime as `2d 3h` / `45m`, whichever reads better at this scale. */
@@ -947,15 +1176,15 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     var runtime = config.platform || {};
     var health = props.health;
     var rows = [];
-    var scan = health && health.state === "ok" ? health.data.scan : null;
     if (health && health.state === "ok") {
       var pricing = health.data.pricing || {};
+      var scan = health.data.scan;
       var scanText = scan === null ? "—"
         : scan.error !== undefined && scan.error !== null ? t("healthScanFailed")
         : scan.done ? t("healthScanDone").replace("{sessions}", scan.sessions).replace("{files}", scan.files).replace("{ms}", scan.ms)
         : t("healthScanRunning");
       rows.push(["healthLatency", health.ms + " ms"]);
-      rows.push(["healthEndpoint", health.data.version + (health.data.version === config.version ? "" : " ≠ " + config.version)]);
+      rows.push(["healthEndpoint", health.data.version]);
       rows.push(["healthScan", scanText]);
       rows.push(["healthPricing", t("healthPricingValue").replace("{source}", pricing.source || "—").replace("{time}", fmtTime(pricing.fetchedAt || 0))]);
       rows.push(["healthBuckets", t("healthBucketsValue").replace("{days}", String(Object.keys(health.data.byDay || {}).length)).replace("{models}", String((health.data.models || []).length))]);
@@ -963,7 +1192,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     }
     var tone = health === null ? "idle" : health.state === "ok" ? "ok" : health.state === "error" ? "bad" : "idle";
     var healthLabel = health === null ? null : health.state === "ok" ? t("healthOk") : health.state === "error" ? t("healthFail") + "：" + health.error : t("healthRunning");
-    return h("div", null,
+    return h("div", { className: "dshtu_stack" },
       h("div", { className: "dshtu_card" },
         h("div", { className: "dshtu_head" }, iconApi === null ? null : h(iconApi, {}), h("h3", null, t("configVersions"))),
         h("table", { className: "dshtu_table" },
@@ -973,7 +1202,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
             h("th", null, t("versionLatest")),
             h("th", null, t("versionState")))),
           h("tbody", null, (config.packages || []).map(function (entry) { return versionRow(t, entry); }))),
-        h("div", { className: "dshtu_bar" },
+        h("div", { className: "dshtu_bar dshtu_tblBar" },
           h("span", { className: "dshtu_meta" }, config.checkedAt > 0 ? t("versionChecked").replace("{time}", fmtTime(config.checkedAt)) : ""),
           h("span", { style: { flex: "1" } }),
           h(button, {
@@ -1014,13 +1243,18 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
           healthLabel === null ? null : h("span", { className: "dshtu_state", "data-tone": tone },
             health.state === "running" && iconLoading !== null ? h(iconLoading, {}) : null,
             healthLabel)),
-        rows.length === 0 ? null : h("dl", { className: "dshtu_health" }, rows.map(function (pair) {
-          return [h("dt", { key: pair[0] }, t(pair[0])), h("dd", { key: pair[0] + "v" }, pair[1])];
-        }).reduce(function (flat, pair) { return flat.concat(pair); }, [])),
         props.restart === null ? null : h("div", { className: "dshtu_meta", style: { marginTop: "10px" } },
           props.restart.state === "pending" ? t("restartPending")
             : props.restart.state === "done" ? t("restartDone")
-            : t("restartFailed").replace("{error}", props.restart.error))));
+            : t("restartFailed").replace("{error}", props.restart.error))),
+      h(HealthPanel, {
+        key: "health",
+        t: t,
+        health: health,
+        harness: props.harness,
+        bundles: props.bundles,
+        version: config.version
+      }));
 
   }
 
@@ -1060,6 +1294,8 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     var _r = useState(null), health = _r[0], setHealth = _r[1];
     var _s = useState(null), restart = _s[0], setRestart = _s[1];
     var _t = useState(false), confirming = _t[0], setConfirming = _t[1];
+    var _u = useState(null), harness = _u[0], setHarness = _u[1];
+    var _v = useState(null), bundles = _v[0], setBundles = _v[1];
 
     var switchTab = function (value) {
       setTab(value);
@@ -1152,11 +1388,18 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
       return function () { stopped = true; };
     }, [tab, configTick]);
 
-    /** One round trip to the snapshot endpoint, timed, reported as a checklist. */
+    /**
+     * The self-check: one timed snapshot call, the host's harness walk, and a
+     * probe of every client bundle the server published for the profile's
+     * plugins. The bundle URLs are build-revisioned, so only the boot manifest
+     * of *this* page can address them — hence the probe runs here.
+     */
     var runHealth = function () {
       var now = function () { return typeof performance !== "undefined" ? performance.now() : Date.now(); };
       var started = now();
       setHealth({ state: "running" });
+      setHarness(null);
+      setBundles(null);
       fetch("/dsh-token-use" + query, { cache: "no-store" })
         .then(function (res) {
           if (!res.ok) throw new Error("http " + res.status);
@@ -1167,6 +1410,40 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
         })
         .catch(function (err) {
           setHealth({ state: "error", error: String(err) });
+        });
+      fetch("/dsh-token-use/health", { cache: "no-store" })
+        .then(function (res) {
+          if (!res.ok) throw new Error("http " + res.status);
+          return res.json();
+        })
+        .then(function (json) {
+          setHarness(json);
+          var plugins = (json.checks || []).filter(function (check) { return check.id === "plugins"; })[0];
+          var wanted = (plugins === undefined ? [] : plugins.items || []).filter(function (item) { return item.client === true; });
+          var boot = typeof window === "undefined" ? null : window.__DSH_BOOT__;
+          var entries = (boot === null || boot === undefined ? [] : boot.entries || []);
+          setBundles(wanted.map(function (item) {
+            return { name: item.name, status: "warn", detail: t("healthChecking") };
+          }));
+          wanted.forEach(function (item) {
+            var entry = entries.filter(function (candidate) { return candidate.id === item.name; })[0];
+            if (entry === undefined) {
+              setBundles(function (list) { return updateRow(list, item.name, { status: "error", detail: t("bundleNoEntry") }); });
+              return;
+            }
+            fetch(entry.url, { cache: "no-store" })
+              .then(function (res) {
+                if (!res.ok) throw new Error(t("bundleFailed").replace("{status}", String(res.status)));
+                var detail = t("bundleOk") + sizeText(res);
+                setBundles(function (list) { return updateRow(list, item.name, { status: "ok", detail: detail }); });
+              })
+              .catch(function (err) {
+                setBundles(function (list) { return updateRow(list, item.name, { status: "error", detail: String(err && err.message ? err.message : err) }); });
+              });
+          });
+        })
+        .catch(function (err) {
+          setHarness({ ok: false, checks: [], error: String(err) });
         });
     };
 
@@ -1355,6 +1632,8 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
         error: configError,
         health: health,
         restart: restart,
+        harness: harness,
+        bundles: bundles,
         onHealth: runHealth,
         onRestart: function () { setConfirming(true); },
         onRefresh: function () { setConfigTick(configTick + 1); }

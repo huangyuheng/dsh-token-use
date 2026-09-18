@@ -14,6 +14,7 @@ Four tabs across the top of the panel: **Overview / By model / By project / Conf
 - **By model** — every model's usage and amount, with the same range query (day / month / year / date range / all).
 - **By project** — every project's usage and amount, same range query.
 - **Configuration** — versions (`dsh-service`, `dsh`, `dsh-base` and this plugin: installed vs the newest release **in the channel you run**, rc/alpha/stable), runtime facts (platform version, Node version, PID, port, uptime, `DSH_HOME`), a **health check** and a confirmed **one-click restart**.
+- **Self-check** (the health check button) reports three sections: **endpoint** (latency, version, history scan, price data, buckets, last update), **client bundles** (each plugin probed at the exact revisioned URL from this page's boot manifest, i.e. what the browser really loads) and **harness** (profile integrity — `node_modules`, lockfile, boot graph; plugin package integrity — entry file, `dsh.bundle.patch`, client bundle; dependency resolution; single cordis instance at one version; service bundle vs the running CLI). When a freshly installed plugin refuses to start, this names the package, the missing file and the fix.
 - **Cost card** — spend estimated live from DeepSeek's published prices × the usage recorded here, with peak/off-peak rates. Every card (totals, trend, by model, by project) carries an amount.
 - **Daily price book** — the official pricing page is fetched once a day at **12:00** and cached locally, so restarts keep it and an offline machine falls back to a built-in snapshot.
 - **Totals card** — estimated cost, total (input + output + cache), input, output, cache read, cache write, reasoning, calls.
@@ -71,7 +72,8 @@ dsh plugin --profile web add /path/to/dsh-token-use
 - The host side **never polls and sets no periodic timer** other than the daily price refresh: it folds usage in O(1) increments from the `session/event` bus (one dictionary addition and one multiplication per `assistant/message`).
 - History is rebuilt **once** at boot by streaming `$DSH_HOME/sessions/**/session.jsonl.zstd` (native zstd from `node:zlib`), yielding the event loop between files (`scheduler.yield()`) so session handling is never blocked. A per-session sequence watermark de-duplicates the rebuild against live events, whatever order they arrive in.
 - **Price refresh**: one HTTPS GET per day at 12:00 local time (15 s timeout, retried an hour later on failure), stored atomically in `$DSH_HOME/dsh-token-use/pricing.json` (up to 30 snapshots). A restart reads the cache synchronously and does not re-fetch; a failed fetch falls back to the built-in snapshot, so the panel always shows numbers.
-- Three routes are exposed (loopback only, `no-store`): `GET /dsh-token-use` for the snapshot, `GET /dsh-token-use/config` for versions and runtime facts, and `POST /dsh-token-use/restart` for the confirmed restart.
+- Four routes are exposed (loopback only, `no-store`): `GET /dsh-token-use` for the snapshot, `GET /dsh-token-use/config` for versions and runtime facts, `GET /dsh-token-use/health` for the harness self-check, and `POST /dsh-token-use/restart` for the confirmed restart.
+- **How the self-check probes**: client bundles are fetched at the revisioned URL from this page's boot manifest (a plugin URL embeds a build revision, so only the manifest can address it); the harness walk reads the profile directory, resolves each real entry file through `exports["."]` / `exports["./client"]` / `main`, and walks up from every plugin directory to spot duplicate `@deepseek-ai/cordis` copies — all read-only, never loading or executing the plugins it inspects. The report carries structured fields plus paths and versions; the panel renders the wording in your language.
 - **Version checks** read the registry's abbreviated packument (`versions` + `dist-tags`) and compare against the highest release **in the channel you run** (rc / alpha / stable) — `@deepseek-ai/dsh-web-app` keeps a stale `0.0.1-rc.1` on its `latest` tag, so a plain `latest` comparison would report a false upgrade. The answer is cached for 6 hours in `$DSH_HOME/dsh-token-use/versions.json`.
 
 ```sh
@@ -86,6 +88,8 @@ curl 'http://127.0.0.1:3080/dsh-token-use?from=2026-09-01&to=2026-09-15'
 curl 'http://127.0.0.1:3080/dsh-token-use?model=deepseek-v4-flash'
 # versions and runtime facts (the configuration tab)
 curl http://127.0.0.1:3080/dsh-token-use/config
+# harness self-check (the configuration tab's health button)
+curl http://127.0.0.1:3080/dsh-token-use/health
 # restart the service (the configuration tab's button; degrades after 2 s and replays the same command)
 curl -X POST http://127.0.0.1:3080/dsh-token-use/restart
 ```
