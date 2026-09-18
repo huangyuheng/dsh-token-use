@@ -52,7 +52,39 @@ You are burning tokens, but you cannot say where: which project costs the most, 
 
 The most expensive cost is the one you cannot see — make it visible.
 
-![Token usage panel: range and model filters, the cost and totals cards, the 7/30/90-day trend chart (stacked composition + cost bars), and the by-model / by-day / by-project tables with amounts](assets/token-usage.jpg)
+![Token usage panel, overview: range and model filters, the cost and totals cards, the trend chart with its daily-average line, and the 12-month usage heatmap](assets/tab-overview.jpg)
+
+## Screenshots
+
+Four tabs across the top of the panel; the shots below are the real panel on real data (Chinese number units).
+
+### Overview
+
+Cost and totals cards, the usage trend (stacked composition + cost bars + **orange daily-average line**) and the heatmap (last 12 months, switchable between total tokens and cost).
+
+![Overview tab](assets/tab-overview.jpg)
+
+### By model
+
+Every model's usage and amount, with the range query (day / month / year / date range / all).
+
+![By model tab](assets/tab-models.jpg)
+
+### By project
+
+Every project's usage and amount, same range query.
+
+![By project tab](assets/tab-projects.jpg)
+
+### Configuration
+
+Versions (compared inside your release channel), runtime facts, the health check and the one-click restart.
+
+![Configuration tab](assets/tab-config.jpg)
+
+The **self-check** that the health button unfolds: endpoint, client bundles and the harness walk.
+
+![The self-check results](assets/tab-selfcheck.jpg)
 
 ## Install
 

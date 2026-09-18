@@ -32,7 +32,8 @@
   "files": [
     "lib",
     "client/client.js",
-    "cordis.patch.yml"
+    "cordis.patch.yml",
+    "assets"
   ],
   "engines": {
     "node": ">=22.19"
