@@ -144,6 +144,8 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     versionChecked: "检查于 {time}",
     versionRefresh: "重新检查",
     versionRefreshing: "检查中…",
+    versionFailed: "本次检查未成功：{names}（显示的是上次结果）",
+    versionFailedTitle: "失败原因：{reason}",
     healthCheck: "健康检查",
     healthRunning: "检查中…",
     healthOk: "接口正常",
@@ -304,6 +306,8 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     versionChecked: "Checked {time}",
     versionRefresh: "Check again",
     versionRefreshing: "Checking…",
+    versionFailed: "This check failed for {names} — showing the last successful result",
+    versionFailedTitle: "Reason: {reason}",
     healthCheck: "Health check",
     healthRunning: "Checking…",
     healthOk: "Endpoint healthy",
@@ -1197,10 +1201,11 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
       h("td", { className: "dshtu_verCell" }, entry.installed === null ? "—" : entry.installed),
       h("td", { className: "dshtu_verCell" }, entry.latest === null ? "—" : entry.latest),
       // The status stays a real table cell so its column lines up with the
-      // header; the inline-flex badge lives inside it.
+      // header; the inline-flex badge lives inside it. A failed lookup never
+      // mixes into this label — it is reported under the table instead.
       h("td", null, h("span", { className: "dshtu_state", "data-tone": tone },
         glyph === null ? null : h(glyph, {}),
-        entry.error === null ? label : label + "（" + entry.error + "）")));
+        label)));
   }
 
   /** Uptime as `2d 3h` / `45m`, whichever reads better at this scale. */
@@ -1222,6 +1227,11 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
       return h("div", { className: "dshtu_card dshtu_meta" }, props.error === null ? t("loading") : t("error") + ": " + props.error);
     }
     var runtime = config.platform || {};
+    // Packages whose last registry lookup failed: their row keeps the previous
+    // answer, and the reason is reported once, under the table.
+    var failed = (config.packages || []).filter(function (entry) { return entry.error !== null && entry.error !== undefined; });
+    // Cap what reaches the tooltip: a cached error string can be arbitrary.
+    var reasonOf = function (entry) { return String(entry.error).replace(/\s+/g, " ").slice(0, 140); };
     var health = props.health;
     var rows = [];
     if (health && health.state === "ok") {
@@ -1259,7 +1269,17 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
             disabled: props.refreshing === true,
             icon: iconRefresh === null ? null : h(iconRefresh, {}),
             onClick: props.onRefresh
-          }, props.refreshing === true ? t("versionRefreshing") : t("versionRefresh")))),
+          }, props.refreshing === true ? t("versionRefreshing") : t("versionRefresh"))),
+        failed.length === 0 ? null : h("div", {
+          className: "dshtu_state",
+          "data-tone": "warn",
+          style: { marginTop: "8px" },
+          // The reason rides the title, not the label: a lookup failure must not
+          // be mistaken for a package's version verdict.
+          title: t("versionFailedTitle").replace("{reason}", failed.map(function (entry) { return entry.label + ": " + reasonOf(entry); }).join(" / "))
+        },
+        iconWarn === null ? null : h(iconWarn, {}),
+        h("span", null, t("versionFailed").replace("{names}", failed.map(function (entry) { return entry.label; }).join("、"))))),
       h("div", { className: "dshtu_card" },
         h("div", { className: "dshtu_head" }, iconGauge === null ? null : h(iconGauge, {}), h("h3", null, t("configRuntime"))),
         h("dl", { className: "dshtu_kv" }, [
