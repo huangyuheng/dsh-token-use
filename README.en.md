@@ -13,7 +13,7 @@ Four tabs across the top of the panel: **Overview / By model / By project / Conf
 - **Overview** — the cost and totals cards, the trend chart, and a **usage heatmap** (last 12 months, one cell per day, coloured by total tokens or by cost; hovering shows that day's tokens, cost and calls **instantly**, without the native tooltip's one-second delay). Range and model filters apply here.
 - **By model** — every model's usage and amount, with the same range query (day / month / year / date range / all).
 - **By project** — every project's usage and amount, same range query.
-- **Configuration** — versions (`dsh-service`, `dsh`, `dsh-base` and this plugin: installed vs the newest release **in the channel you run**, rc/alpha/stable), runtime facts (platform version, Node version, PID, port, uptime, `DSH_HOME`), a **health check** and a confirmed **one-click restart**.
+- **Configuration** — versions (`dsh-service`, `dsh`, `dsh-base` and this plugin: installed vs the newest release **in the channel you run**, rc/alpha/stable), runtime facts (platform version, Node version, PID, port, uptime, `DSH_HOME`), a **health check**, a confirmed **one-click restart** and a confirmed **shutdown**.
 - **Self-check** (the health check button) reports three sections: **endpoint** (latency, version, history scan, price data, buckets, last update), **client bundles** (each plugin probed at the exact revisioned URL from this page's boot manifest, i.e. what the browser really loads) and **harness** (profile integrity — `node_modules`, lockfile, boot graph; plugin package integrity — entry file, `dsh.bundle.patch`, client bundle; dependency resolution; single cordis instance at one version; service bundle vs the running CLI). When a freshly installed plugin refuses to start, this names the package, the missing file and the fix.
 - **Cost card** — spend estimated live from DeepSeek's published prices × the usage recorded here, with peak/off-peak rates. Every card (totals, trend, by model, by project) carries an amount.
 - **Daily price book** — the official pricing page is fetched once a day at **12:00** and cached locally, so restarts keep it and an offline machine falls back to a built-in snapshot.
@@ -25,9 +25,13 @@ Four tabs across the top of the panel: **Overview / By model / By project / Conf
 - **Unit switch** — 亿 / 万 / 千 in Chinese, B / M / K in English; remembered per browser. The tab bar and the unit switch stay pinned at the top, and the tab you were on is remembered.
 - **Detail tables** — by model and by project (the day dimension lives in the heatmap), each with an amount column (hover a row for its rates) and a total column.
 
-### One-click restart
+### One-click restart / shutdown
 
-The button on the configuration tab restarts the dsh web process serving the page. It replays the current command line (`process.argv` plus the working directory), so custom ports and flags survive; it asks for confirmation first, and the page reconnects and reloads itself about 10-30 seconds later. The script lands in `$DSH_HOME/dsh-token-use/restart.sh` and its output in `restart.log`. When a launch cannot be replayed (no executable entry point), the button is disabled with a reason instead.
+Both actions at the bottom of the configuration tab share one **full-screen transition**: a power ring with phase copy (preparing → stopping the process → recovering → new instance ready), drawn over the whole page without disturbing the rest of the host.
+
+- **One-click restart** — restarts the dsh web process serving the page. It replays the current command line (`process.argv` plus the working directory), so custom ports and flags survive; it asks for confirmation first, and the page reconnects and reloads itself about 10-30 seconds later. The script lands in `$DSH_HOME/dsh-token-use/restart.sh` and its output in `restart.log`.
+- **Shutdown** — stops that process and does **not** bring it back; the transition ends on "you can close this page now", and you start `dsh web` again from a terminal when you need it. Its confirm button is a solid red danger button so it cannot be hit by accident.
+- When a launch cannot be replayed (no executable entry point), the restart button is disabled with a reason instead.
 
 ## The amounts are estimates
 
@@ -78,7 +82,7 @@ Every project's usage and amount, same range query.
 
 ### Configuration
 
-Versions (compared inside your release channel), runtime facts, the health check and the one-click restart.
+Versions (compared inside your release channel), runtime facts, the health check, the one-click restart and the shutdown — the last two ask for confirmation and run a full-screen transition.
 
 ![Configuration tab](assets/tab-config.jpg)
 
@@ -104,7 +108,7 @@ dsh plugin --profile web add /path/to/dsh-token-use
 - The host side **never polls and sets no periodic timer** other than the daily price refresh: it folds usage in O(1) increments from the `session/event` bus (one dictionary addition and one multiplication per `assistant/message`).
 - History is rebuilt **once** at boot by streaming `$DSH_HOME/sessions/**/session.jsonl.zstd` (native zstd from `node:zlib`), yielding the event loop between files (`scheduler.yield()`) so session handling is never blocked. A per-session sequence watermark de-duplicates the rebuild against live events, whatever order they arrive in.
 - **Price refresh**: one HTTPS GET per day at 12:00 local time (15 s timeout, retried an hour later on failure), stored atomically in `$DSH_HOME/dsh-token-use/pricing.json` (up to 30 snapshots). A restart reads the cache synchronously and does not re-fetch; a failed fetch falls back to the built-in snapshot, so the panel always shows numbers.
-- Four routes are exposed (loopback only, `no-store`): `GET /dsh-token-use` for the snapshot, `GET /dsh-token-use/config` for versions and runtime facts, `GET /dsh-token-use/health` for the harness self-check, and `POST /dsh-token-use/restart` for the confirmed restart.
+- Five routes are exposed (loopback only, `no-store`): `GET /dsh-token-use` for the snapshot, `GET /dsh-token-use/config` for versions and runtime facts, `GET /dsh-token-use/health` for the harness self-check, `POST /dsh-token-use/restart` for the confirmed restart and `POST /dsh-token-use/shutdown` for the confirmed shutdown (neither POST answers a GET).
 - **How the self-check probes**: client bundles are fetched at the revisioned URL from this page's boot manifest (a plugin URL embeds a build revision, so only the manifest can address it); the harness walk reads the profile directory, resolves each real entry file through `exports["."]` / `exports["./client"]` / `main`, and walks up from every plugin directory to spot duplicate `@deepseek-ai/cordis` copies — all read-only, never loading or executing the plugins it inspects. The report carries structured fields plus paths and versions; the panel renders the wording in your language.
 - **Version checks** read the registry's abbreviated packument (`versions` + `dist-tags`) and compare against the highest release **in the channel you run** (rc / alpha / stable) — `@deepseek-ai/dsh-web-app` keeps a stale `0.0.1-rc.1` on its `latest` tag, so a plain `latest` comparison would report a false upgrade. The answer is cached for 6 hours in `$DSH_HOME/dsh-token-use/versions.json`.
 
@@ -124,6 +128,8 @@ curl http://127.0.0.1:3080/dsh-token-use/config
 curl http://127.0.0.1:3080/dsh-token-use/health
 # restart the service (the configuration tab's button; degrades after 2 s and replays the same command)
 curl -X POST http://127.0.0.1:3080/dsh-token-use/restart
+# shut it down (the configuration tab's button; stops and does not come back)
+curl -X POST http://127.0.0.1:3080/dsh-token-use/shutdown
 ```
 
 Every bucket carries a `cost` (the estimate); `pricing` holds the current price book, when it was fetched and when it refreshes next; `modelPricing` maps each observed model to its rates or to the reason it carries no amount. `trend` spans the last 366 days — the chart takes the last 7/30/90 of it and the heatmap takes the whole run.

@@ -20,8 +20,31 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
   } catch (error) {
     ui = {};
   }
+  /**
+   * `react-dom` is one of the shell's static modules, so the power overlay can be
+   * portalled straight into `document.body`. Without it the overlay still renders
+   * (position: fixed) — just inside the settings dialog's DOM.
+   */
+  var reactDom = null;
+  try {
+    reactDom = require("react-dom");
+  } catch (error) {
+    reactDom = null;
+  }
+  var portalTo = reactDom !== null && typeof reactDom.createPortal === "function"
+    ? function (node) { return reactDom.createPortal(node, document.body); }
+    : null;
+  /**
+   * React takes more than a plain function as an element type: the shell wraps
+   * some atoms (Button) in `memo`/`forwardRef`, which are objects. Gating on
+   * "function" quietly dropped those to the fallback, so the gate is "anything
+   * React can render".
+   */
+  var renderable = function (value) {
+    return typeof value === "function" || (typeof value === "object" && value !== null);
+  };
   var component = function (name, fallback) {
-    return typeof ui[name] === "function" ? ui[name] : fallback;
+    return renderable(ui[name]) ? ui[name] : fallback;
   };
   /**
    * Tooltip is the right layer for the ⓘ: it positions in viewport coordinates,
@@ -33,19 +56,25 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
   var stateDot = component("StateDot", null);
   var menu = component("Menu", null);
   var modal = component("Modal", null);
+  /**
+   * Icon atoms are named `Icon<Name>Outline<Weight>` — `Regular` is the 1px
+   * stroke weight, `Medium` the 1.3px one. Each artwork already defaults to the
+   * box size its context wants (16px for controls, 14px for inline marks), so no
+   * size prop is passed.
+   */
   var icon = function (name) {
-    return typeof ui[name] === "function" ? ui[name] : null;
+    return renderable(ui[name]) ? ui[name] : null;
   };
-  var iconQuestion = icon("IconQuestionOutline14");
-  var iconChevron = icon("IconChevronDownOutline14");
-  var iconRefresh = icon("IconRefreshOutline14");
-  var iconGauge = icon("IconGaugeOutline16");
-  var iconTrend = icon("IconDataOutline16");
-  var iconCheck = icon("IconCheckOutline16");
-  var iconWarn = icon("IconWarningOutline16");
-  var iconClock = icon("IconClockOutline16");
-  var iconLoading = icon("IconLoadingOutline16");
-  var iconApi = icon("IconApiOutline14");
+  var iconQuestion = icon("IconQuestionOutlineRegular");
+  var iconChevron = icon("IconChevronDownOutlineRegular");
+  var iconRefresh = icon("IconRefreshOutlineRegular");
+  var iconGauge = icon("IconGaugeOutlineRegular");
+  var iconTrend = icon("IconDataOutlineRegular");
+  var iconCheck = icon("IconCheckOutlineRegular");
+  var iconWarn = icon("IconWarningOutlineRegular");
+  var iconClock = icon("IconClockOutlineRegular");
+  var iconLoading = icon("IconLoadingOutlineRegular");
+  var iconApi = icon("IconApiOutlineRegular");
   /** Chip and Button degrade into styled native controls on an older shell. */
   var chip = component("Pill", function (props) {
     return h("button", { type: "button", className: "dshtu_seg", "data-on": props.active === true, onClick: props.onClick, disabled: props.disabled === true }, props.children);
@@ -146,6 +175,23 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     versionRefreshing: "检查中…",
     versionFailed: "本次检查未成功：{names}（显示的是上次结果）",
     versionFailedTitle: "失败原因：{reason}",
+    shutdown: "关机",
+    shutdownTitle: "关闭 dsh web 服务？",
+    shutdownBody: "将停止正在提供本页面的 dsh web 进程（PID {pid}），且不会自动重启。关闭后本页面将无法使用，需要时请在终端重新运行 `dsh web`。",
+    shutdownConfirm: "确认关机",
+    shutdownFailed: "关机失败：{error}",
+    cancel: "取消",
+    powerRestartTitle: "正在重启 DeepSeek Harness…",
+    powerShutdownTitle: "正在关机 DeepSeek Harness…",
+    powerPrepareRestart: "正在准备重启…",
+    powerPrepareShutdown: "正在准备关机…",
+    powerStopping: "正在结束进程，即将断开连接",
+    powerRecovering: "正在恢复…",
+    powerReloaded: "新实例已就绪，正在刷新页面",
+    powerStopped: "服务已关闭",
+    powerStoppedNote: "可以关闭此页面了；需要时请在终端重新运行 `dsh web` 启动服务。",
+    powerTimeout: "重启超时，请手动刷新页面",
+    powerTimeoutNote: "服务未在预期时间内恢复，可能需要手动启动。日志：{log}",
     healthCheck: "健康检查",
     healthRunning: "检查中…",
     healthOk: "接口正常",
@@ -308,6 +354,23 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     versionRefreshing: "Checking…",
     versionFailed: "This check failed for {names} — showing the last successful result",
     versionFailedTitle: "Reason: {reason}",
+    shutdown: "Shut down",
+    shutdownTitle: "Shut down the dsh web service?",
+    shutdownBody: "This stops the dsh web process serving this page (PID {pid}) and will not start it again. The page stops working until you run `dsh web` in a terminal.",
+    shutdownConfirm: "Shut down",
+    shutdownFailed: "Shutdown failed: {error}",
+    cancel: "Cancel",
+    powerRestartTitle: "Restarting DeepSeek Harness…",
+    powerShutdownTitle: "Shutting DeepSeek Harness down…",
+    powerPrepareRestart: "Preparing to restart…",
+    powerPrepareShutdown: "Preparing to shut down…",
+    powerStopping: "Stopping the process — the connection is about to drop",
+    powerRecovering: "Coming back…",
+    powerReloaded: "The new instance is up — reloading",
+    powerStopped: "The service is down",
+    powerStoppedNote: "You can close this page; run `dsh web` in a terminal when you need it again.",
+    powerTimeout: "The restart timed out — reload the page manually",
+    powerTimeoutNote: "The service did not come back in time and may need to be started by hand. Log: {log}",
     healthCheck: "Health check",
     healthRunning: "Checking…",
     healthOk: "Endpoint healthy",
@@ -385,7 +448,7 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     hintServiceVersion: "a service bundle older or newer than the running CLI is a common cause of failed plugin startups"
   };
 
-  var css = ".dshtu_wrap{max-width:860px;display:flex;flex-direction:column;gap:14px;padding:2px 2px 4px;color:var(--dsw-alias-label-primary);font-size:13px}.dshtu_card{background:var(--dsw-alias-bg-layer-3);border-radius:14px;box-shadow:var(--dsw-elevation-stroke);padding:14px 16px}.dshtu_bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_bar label{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_bar .dshtu_select,.dshtu_bar .dshtu_input{border:.5px solid var(--dsw-alias-border-l4);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;border-radius:8px;padding:4px 8px;font-size:12.5px}.dshtu_bar .dshtu_select{width:168px;text-overflow:ellipsis;white-space:nowrap}.dshtu_chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.dshtu_subBar{margin-top:12px}.dshtu_pick{display:inline-flex;align-items:center;gap:4px;max-width:230px}.dshtu_pickLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dshtu_metaIcon{display:inline-flex;align-items:center;margin-right:5px;vertical-align:-2px;color:var(--dsw-alias-label-tertiary)}.dshtu_cardTitle{display:inline-flex;align-items:center}.dshtu_foot{display:flex;align-items:center;gap:6px}.dshtu_statLabel{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.dshtu_field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_seg{display:inline-flex;border:.5px solid var(--dsw-alias-border-l4);border-radius:8px;overflow:hidden}.dshtu_seg button{border:0;background:0 0;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;padding:4px 10px;font-size:12.5px}.dshtu_seg button[data-on=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.dshtu_totalsMeta{margin-top:12px}.dshtu_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:8px}.dshtu_stat{background:var(--dsw-alias-bg-module-platform);border-radius:10px;padding:10px 12px}.dshtu_stat b{display:block;font-size:16px;line-height:24px;font-variant-numeric:tabular-nums}.dshtu_stat span{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_stat[data-main=true]{background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 12%,var(--dsw-alias-bg-module-platform))}.dshtu_stat[data-main=true] b{color:var(--dsw-alias-state-business-primary);font-size:20px}.dshtu_table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.dshtu_table th,.dshtu_table td{text-align:right;padding:6px 8px;border-bottom:.5px solid var(--dsw-alias-border-l2);font-weight:400}.dshtu_table th:first-child,.dshtu_table td:first-child{text-align:left}.dshtu_table th{color:var(--dsw-alias-label-tertiary);font-size:12px;white-space:nowrap}.dshtu_table td:first-child{overflow-wrap:anywhere;max-width:300px;color:var(--dsw-alias-label-secondary)}.dshtu_meta{color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}.dshtu_err{color:var(--dsw-alias-state-error-primary);display:flex;align-items:center;gap:10px}.dshtu_chart{width:100%;height:260px}.dshtu_info{display:inline-flex;align-items:center;justify-content:center;margin-left:6px;color:var(--dsw-alias-label-tertiary);cursor:help}.dshtu_info:hover{color:var(--dsw-alias-state-business-primary)}.dshtu_pop{display:block;max-width:420px;font-size:12px;font-weight:400;line-height:18px;text-align:left;white-space:normal}.dshtu_pop .dshtu_sep{margin:0 5px;opacity:.55}[role=tooltip]:has(.dshtu_pop){background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);padding:10px 12px;border:0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16)}.dshtu_nd{color:var(--dsw-alias-label-tertiary)}.dshtu_range{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_range input{width:132px}.dshtu_range em{font-style:normal;color:var(--dsw-alias-label-tertiary)}.dshtu_tabRow{display:flex;align-items:center;gap:10px}.dshtu_tabs{display:flex;align-items:center;gap:2px;flex:1;flex-wrap:wrap}.dshtu_tabs button{border:0;background:0 0;font:inherit;color:var(--dsw-alias-label-secondary);cursor:pointer;padding:5px 10px 6px;border-bottom:2px solid transparent;font-size:13px}.dshtu_tabs button:hover{color:var(--dsw-alias-label-primary)}.dshtu_tabs button[data-on=true]{color:var(--dsw-alias-label-primary);border-bottom-color:var(--dsw-alias-state-business-primary);font-weight:500}.dshtu_heatCard{position:relative;display:flex;flex-direction:column;gap:10px}.dshtu_heatHead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_heatScroll{overflow-x:auto;padding-bottom:4px}.dshtu_heatBody{display:flex;gap:3px}.dshtu_heatDays{display:flex;flex-direction:column;gap:3px;width:17px}.dshtu_heatDay{height:11px;font-size:10px;line-height:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heat{display:flex;gap:3px}.dshtu_heatCol{display:flex;flex-direction:column;gap:3px}.dshtu_heatColHead{position:relative;height:13px}.dshtu_heatColLabel{position:absolute;left:0;top:0;font-size:10px;line-height:13px;color:var(--dsw-alias-label-tertiary);white-space:nowrap}.dshtu_heatCell{width:11px;height:11px;border-radius:2px;background:var(--dsw-alias-bg-module-platform)}.dshtu_heatCell[data-future=true]{background:0 0}.dshtu_heatCell[data-day]:hover{outline:1.5px solid var(--dsw-alias-state-business-primary);outline-offset:1px}.dshtu_heatTip{position:absolute;z-index:6;transform:translate(-50%,-100%);pointer-events:none;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);padding:6px 9px;font-size:11.5px;line-height:17px;white-space:nowrap;display:flex;flex-direction:column}.dshtu_heatTip b{font-weight:500;margin-bottom:1px}.dshtu_heatTipRow{color:var(--dsw-alias-label-secondary)}.dshtu_heatLegend{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heatLegend i{width:11px;height:11px;border-radius:2px;display:inline-block}.dshtu_kv{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:8px;font-size:12.5px}.dshtu_kv dt{color:var(--dsw-alias-label-tertiary)}.dshtu_kv dd{margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.dshtu_acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}.dshtu_health{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:12px;padding-top:10px;border-top:.5px solid var(--dsw-alias-border-l2);font-size:12.5px}.dshtu_health dt{color:var(--dsw-alias-label-tertiary)}.dshtu_health dd{margin:0;font-variant-numeric:tabular-nums}.dshtu_stack{display:flex;flex-direction:column;gap:14px}.dshtu_tblBar{margin-top:12px}.dshtu_checkList{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}.dshtu_head{display:flex;align-items:center;gap:6px;margin-bottom:8px}.dshtu_head h3{margin:0;font-size:13px;font-weight:500}.dshtu_slim .dshtu_bar{margin:0}.dshtu_state{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}.dshtu_state[data-tone=ok]{color:var(--dsw-alias-state-success-primary)}.dshtu_state[data-tone=warn]{color:var(--dsw-alias-state-warning-primary)}.dshtu_state[data-tone=bad]{color:var(--dsw-alias-state-error-primary)}.dshtu_state[data-tone=idle]{color:var(--dsw-alias-label-tertiary)}.dshtu_modalBody{font-size:12.5px;line-height:20px;color:var(--dsw-alias-label-secondary);max-width:420px}.dshtu_modalFoot{display:flex;justify-content:flex-end;gap:8px}.dshtu_verCell{font-variant-numeric:tabular-nums;white-space:nowrap}";
+  var css = ".dshtu_wrap{max-width:860px;display:flex;flex-direction:column;gap:14px;padding:2px 2px 4px;color:var(--dsw-alias-label-primary);font-size:13px}.dshtu_card{background:var(--dsw-alias-bg-layer-3);border-radius:14px;box-shadow:var(--dsw-elevation-stroke);padding:14px 16px}.dshtu_bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_bar label{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_bar .dshtu_select,.dshtu_bar .dshtu_input{border:.5px solid var(--dsw-alias-border-l4);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:inherit;border-radius:8px;padding:4px 8px;font-size:12.5px}.dshtu_bar .dshtu_select{width:168px;text-overflow:ellipsis;white-space:nowrap}.dshtu_chips{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.dshtu_subBar{margin-top:12px}.dshtu_pick{display:inline-flex;align-items:center;gap:4px;max-width:230px}.dshtu_pickLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dshtu_metaIcon{display:inline-flex;align-items:center;margin-right:5px;vertical-align:-2px;color:var(--dsw-alias-label-tertiary)}.dshtu_cardTitle{display:inline-flex;align-items:center}.dshtu_foot{display:flex;align-items:center;gap:6px}.dshtu_statLabel{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.dshtu_field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_seg{display:inline-flex;border:.5px solid var(--dsw-alias-border-l4);border-radius:8px;overflow:hidden}.dshtu_seg button{border:0;background:0 0;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;padding:4px 10px;font-size:12.5px}.dshtu_seg button[data-on=true]{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.dshtu_totalsMeta{margin-top:12px}.dshtu_grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:8px}.dshtu_stat{background:var(--dsw-alias-bg-module-platform);border-radius:10px;padding:10px 12px}.dshtu_stat b{display:block;font-size:16px;line-height:24px;font-variant-numeric:tabular-nums}.dshtu_stat span{color:var(--dsw-alias-label-tertiary);font-size:12px}.dshtu_stat[data-main=true]{background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 12%,var(--dsw-alias-bg-module-platform))}.dshtu_stat[data-main=true] b{color:var(--dsw-alias-state-business-primary);font-size:20px}.dshtu_table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.dshtu_table th,.dshtu_table td{text-align:right;padding:6px 8px;border-bottom:.5px solid var(--dsw-alias-border-l2);font-weight:400}.dshtu_table th:first-child,.dshtu_table td:first-child{text-align:left}.dshtu_table th{color:var(--dsw-alias-label-tertiary);font-size:12px;white-space:nowrap}.dshtu_table td:first-child{overflow-wrap:anywhere;max-width:300px;color:var(--dsw-alias-label-secondary)}.dshtu_meta{color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:18px}.dshtu_err{color:var(--dsw-alias-state-error-primary);display:flex;align-items:center;gap:10px}.dshtu_chart{width:100%;height:260px}.dshtu_info{display:inline-flex;align-items:center;justify-content:center;margin-left:6px;color:var(--dsw-alias-label-tertiary);cursor:help}.dshtu_info:hover{color:var(--dsw-alias-state-business-primary)}.dshtu_pop{display:block;max-width:420px;font-size:12px;font-weight:400;line-height:18px;text-align:left;white-space:normal}.dshtu_pop .dshtu_sep{margin:0 5px;opacity:.55}[role=tooltip]:has(.dshtu_pop){background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);padding:10px 12px;border:0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16)}.dshtu_nd{color:var(--dsw-alias-label-tertiary)}.dshtu_range{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.dshtu_range input{width:132px}.dshtu_range em{font-style:normal;color:var(--dsw-alias-label-tertiary)}.dshtu_tabRow{display:flex;align-items:center;gap:10px}.dshtu_tabs{display:flex;align-items:center;gap:2px;flex:1;flex-wrap:wrap}.dshtu_tabs button{border:0;background:0 0;font:inherit;color:var(--dsw-alias-label-secondary);cursor:pointer;padding:5px 10px 6px;border-bottom:2px solid transparent;font-size:13px}.dshtu_tabs button:hover{color:var(--dsw-alias-label-primary)}.dshtu_tabs button[data-on=true]{color:var(--dsw-alias-label-primary);border-bottom-color:var(--dsw-alias-state-business-primary);font-weight:500}.dshtu_heatCard{position:relative;display:flex;flex-direction:column;gap:10px}.dshtu_heatHead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dshtu_heatScroll{overflow-x:auto;padding-bottom:4px}.dshtu_heatBody{display:flex;gap:3px}.dshtu_heatDays{display:flex;flex-direction:column;gap:3px;width:17px}.dshtu_heatDay{height:11px;font-size:10px;line-height:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heat{display:flex;gap:3px}.dshtu_heatCol{display:flex;flex-direction:column;gap:3px}.dshtu_heatColHead{position:relative;height:13px}.dshtu_heatColLabel{position:absolute;left:0;top:0;font-size:10px;line-height:13px;color:var(--dsw-alias-label-tertiary);white-space:nowrap}.dshtu_heatCell{width:11px;height:11px;border-radius:2px;background:var(--dsw-alias-bg-module-platform)}.dshtu_heatCell[data-future=true]{background:0 0}.dshtu_heatCell[data-day]:hover{outline:1.5px solid var(--dsw-alias-state-business-primary);outline-offset:1px}.dshtu_heatTip{position:absolute;z-index:6;transform:translate(-50%,-100%);pointer-events:none;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);padding:6px 9px;font-size:11.5px;line-height:17px;white-space:nowrap;display:flex;flex-direction:column}.dshtu_heatTip b{font-weight:500;margin-bottom:1px}.dshtu_heatTipRow{color:var(--dsw-alias-label-secondary)}.dshtu_heatLegend{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--dsw-alias-label-tertiary)}.dshtu_heatLegend i{width:11px;height:11px;border-radius:2px;display:inline-block}.dshtu_kv{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:8px;font-size:12.5px}.dshtu_kv dt{color:var(--dsw-alias-label-tertiary)}.dshtu_kv dd{margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.dshtu_acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}.dshtu_health{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:6px 14px;margin-top:12px;padding-top:10px;border-top:.5px solid var(--dsw-alias-border-l2);font-size:12.5px}.dshtu_health dt{color:var(--dsw-alias-label-tertiary)}.dshtu_health dd{margin:0;font-variant-numeric:tabular-nums}.dshtu_stack{display:flex;flex-direction:column;gap:14px}.dshtu_tblBar{margin-top:12px}.dshtu_checkList{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}.dshtu_head{display:flex;align-items:center;gap:6px;margin-bottom:8px}.dshtu_head h3{margin:0;font-size:13px;font-weight:500}.dshtu_slim .dshtu_bar{margin:0}.dshtu_state{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}.dshtu_state[data-tone=ok]{color:var(--dsw-alias-state-success-primary)}.dshtu_state[data-tone=warn]{color:var(--dsw-alias-state-warn-primary)}.dshtu_state[data-tone=bad]{color:var(--dsw-alias-state-error-primary)}.dshtu_state[data-tone=idle]{color:var(--dsw-alias-label-tertiary)}.dshtu_modalBody{font-size:12.5px;line-height:20px;color:var(--dsw-alias-label-secondary);max-width:420px}.dshtu_modalFoot{display:flex;justify-content:flex-end;gap:8px}.dshtu_verCell{font-variant-numeric:tabular-nums;white-space:nowrap}.dshtu_acts{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}.dshtu_acts button{flex:none}.dshtu_danger{color:var(--dsw-alias-state-error-primary)}.dshtu_danger:hover{background:var(--dsw-alias-interactive-bg-hover-danger)}.dshtu_dangerFill{background:var(--dsw-alias-state-error-primary)!important;color:#fff!important;border-color:transparent!important}.dshtu_dangerFill:hover{background:color-mix(in srgb,var(--dsw-alias-state-error-primary) 86%,#000)!important}.dshtu_warnBtn{color:var(--dsw-alias-state-warn-primary)}.dshtu_warnBtn:hover{background:color-mix(in srgb,var(--dsw-alias-state-warn-primary) 10%,transparent)}.dshtu_head .dshtu_grow{flex:1}.dshtu_power{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--dsw-alias-bg-layer-1) 92%,#000);backdrop-filter:blur(7px);animation:dshtu-power-in .3s ease both}.dshtu_powerBox{display:flex;flex-direction:column;align-items:center;gap:14px;padding:36px 44px;text-align:center;max-width:min(560px,80vw)}.dshtu_ring{position:relative;width:120px;height:120px}.dshtu_ring svg{position:absolute;inset:0;width:100%;height:100%}.dshtu_ringTrack{fill:none;stroke:color-mix(in srgb,var(--dsw-alias-label-primary) 14%,transparent);stroke-width:5}.dshtu_ringArc{fill:none;stroke:var(--dsw-alias-state-business-primary);stroke-width:5;stroke-linecap:round;stroke-dasharray:74 260;transform-origin:60px 60px;animation:dshtu-ring-spin 1.15s linear infinite}.dshtu_glyph{fill:none;stroke:var(--dsw-alias-label-primary);stroke-width:6;stroke-linecap:round;opacity:.9;animation:dshtu-glyph-pulse 1.8s ease-in-out infinite}.dshtu_power[data-mode=shutdown] .dshtu_ringArc{stroke:var(--dsw-alias-state-error-primary)}.dshtu_power[data-mode=shutdown] .dshtu_glyph{stroke:var(--dsw-alias-state-error-primary)}.dshtu_powerTitle{font-size:17px;font-weight:600;letter-spacing:.2px}.dshtu_powerPhase{font-size:13px;color:var(--dsw-alias-label-secondary);min-height:20px}.dshtu_powerBar{width:240px;height:3px;border-radius:2px;overflow:hidden;background:color-mix(in srgb,var(--dsw-alias-label-primary) 12%,transparent)}.dshtu_powerBar i{display:block;width:38%;height:100%;border-radius:2px;background:var(--dsw-alias-state-business-primary);animation:dshtu-bar-slide 1.35s ease-in-out infinite}.dshtu_power[data-mode=shutdown] .dshtu_powerBar i{background:var(--dsw-alias-state-error-primary)}.dshtu_powerNote{font-size:12.5px;line-height:20px;color:var(--dsw-alias-label-secondary);max-width:420px}.dshtu_powerNote code{background:var(--dsw-alias-bg-module-platform);border-radius:5px;padding:2px 6px;font-size:12px}.dshtu_power[data-phase=stopped] .dshtu_ringArc,.dshtu_power[data-phase=timeout] .dshtu_ringArc{animation:none;stroke-dasharray:none;opacity:.45}.dshtu_power[data-phase=stopped] .dshtu_powerBar,.dshtu_power[data-phase=timeout] .dshtu_powerBar,.dshtu_power[data-phase=reloaded] .dshtu_powerBar{visibility:hidden}.dshtu_power[data-phase=stopped] .dshtu_glyph,.dshtu_power[data-phase=timeout] .dshtu_glyph{animation:none}@keyframes dshtu-power-in{from{opacity:0}to{opacity:1}}@keyframes dshtu-ring-spin{to{transform:rotate(360deg)}}@keyframes dshtu-glyph-pulse{0%,100%{opacity:.9}50%{opacity:.45}}@keyframes dshtu-bar-slide{0%{transform:translateX(-110%)}100%{transform:translateX(370%)}}";
 
   function trimNum(v, decimals) {
     var f = v.toFixed(decimals);
@@ -1186,6 +1249,60 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
         }).reduce(function (flat, pair) { return flat.concat(pair); }, []))));
   }
 
+  /** A power symbol for the shutdown button — the shell ships no power icon. */
+  function powerGlyph(size) {
+    return h("svg", {
+      width: size || 16,
+      height: size || 16,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: 2,
+      strokeLinecap: "round"
+    },
+    h("path", { d: "M12 3v9" }),
+    h("path", { d: "M6.6 6.8a8 8 0 1 0 10.8 0" }));
+  }
+
+  /**
+   * Fullscreen transition for restart and shutdown: a power ring that keeps
+   * turning while the old process winds down, the phase it is in, and — once it
+   * is over — what to do next. Nothing here is a fake progress bar: the phases
+   * follow what the browser can actually observe (the request landed, the old
+   * process stopped answering, a *new* instance answered).
+   */
+  function PowerOverlay(props) {
+    var t = props.t;
+    var power = props.power;
+    if (power === null || power === undefined) return null;
+    var mode = power.mode === "shutdown" ? "shutdown" : "restart";
+    var phase = power.phase;
+    var phaseText = phase === "prepare"
+      ? (mode === "restart" ? t("powerPrepareRestart") : t("powerPrepareShutdown"))
+      : phase === "stopping" ? t("powerStopping")
+      : phase === "recovering" ? t("powerRecovering")
+      : phase === "reloaded" ? t("powerReloaded")
+      : phase === "stopped" ? t("powerStopped")
+      : t("powerTimeout");
+    var note = phase === "stopped" ? t("powerStoppedNote")
+      : phase === "timeout" ? t("powerTimeoutNote").replace("{log}", power.log === null || power.log === undefined ? "—" : power.log)
+      : null;
+    var node = h("div", { className: "dshtu_power", "data-mode": mode, "data-phase": phase, role: "status", "aria-live": "polite" },
+      h("div", { className: "dshtu_powerBox" },
+        h("div", { className: "dshtu_ring" },
+          h("svg", { viewBox: "0 0 120 120" },
+            h("circle", { className: "dshtu_ringTrack", cx: 60, cy: 60, r: 52 }),
+            h("circle", { className: "dshtu_ringArc", cx: 60, cy: 60, r: 52 })),
+          h("svg", { viewBox: "0 0 120 120" },
+            h("path", { className: "dshtu_glyph", d: "M60 30 V58" }),
+            h("path", { className: "dshtu_glyph", d: "M41 41a27 27 0 1 0 38 0" }))),
+        h("div", { className: "dshtu_powerTitle" }, mode === "restart" ? t("powerRestartTitle") : t("powerShutdownTitle")),
+        h("div", { className: "dshtu_powerPhase" }, phaseText),
+        h("div", { className: "dshtu_powerBar" }, h("i", null)),
+        note === null ? null : h("div", { className: "dshtu_powerNote" }, note)));
+    return portalTo === null ? node : portalTo(node);
+  }
+
   /** `已安装 / 最新 / 状态` for one tracked package. */
   function versionRow(t, entry) {
     var tone = entry.status === "current" ? "ok" : (entry.status === "outdated" ? "warn" : "idle");
@@ -1252,7 +1369,17 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     var healthLabel = health === null ? null : health.state === "ok" ? t("healthOk") : health.state === "error" ? t("healthFail") + "：" + health.error : t("healthRunning");
     return h("div", { className: "dshtu_stack" },
       h("div", { className: "dshtu_card" },
-        h("div", { className: "dshtu_head" }, iconApi === null ? null : h(iconApi, {}), h("h3", null, t("configVersions"))),
+        h("div", { className: "dshtu_head" },
+          iconApi === null ? null : h(iconApi, {}),
+          h("h3", null, t("configVersions")),
+          h("span", { className: "dshtu_grow" }),
+          h(button, {
+            variant: "ghost",
+            size: "sm",
+            disabled: props.refreshing === true,
+            icon: iconRefresh === null ? null : h(iconRefresh, {}),
+            onClick: props.onRefresh
+          }, props.refreshing === true ? t("versionRefreshing") : t("versionRefresh"))),
         h("table", { className: "dshtu_table" },
           h("thead", null, h("tr", null,
             h("th", null, t("versionPackage")),
@@ -1260,16 +1387,8 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
             h("th", null, t("versionLatest")),
             h("th", null, t("versionState")))),
           h("tbody", null, (config.packages || []).map(function (entry) { return versionRow(t, entry); }))),
-        h("div", { className: "dshtu_bar dshtu_tblBar" },
-          h("span", { className: "dshtu_meta" }, config.checkedAt > 0 ? t("versionChecked").replace("{time}", fmtTime(config.checkedAt)) : ""),
-          h("span", { style: { flex: "1" } }),
-          h(button, {
-            variant: "outline",
-            size: "sm",
-            disabled: props.refreshing === true,
-            icon: iconRefresh === null ? null : h(iconRefresh, {}),
-            onClick: props.onRefresh
-          }, props.refreshing === true ? t("versionRefreshing") : t("versionRefresh"))),
+        h("div", { className: "dshtu_meta", style: { marginTop: "10px" } },
+          config.checkedAt > 0 ? t("versionChecked").replace("{time}", fmtTime(config.checkedAt)) : ""),
         failed.length === 0 ? null : h("div", {
           className: "dshtu_state",
           "data-tone": "warn",
@@ -1303,19 +1422,30 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
           config.restartable === false
             ? h("span", { className: "dshtu_meta" }, t("restartBlocked"))
             : h(button, {
-              variant: "primary",
+              variant: "outline",
               size: "sm",
+              className: "dshtu_warnBtn",
               icon: iconRefresh === null ? null : h(iconRefresh, {}),
-              disabled: props.restart !== null && props.restart.state !== "error",
+              disabled: props.busy === true,
               onClick: props.onRestart
             }, t("restart")),
+          config.shutdownable === false
+            ? null
+            : h(button, {
+              variant: "outline",
+              size: "sm",
+              className: "dshtu_danger",
+              icon: powerGlyph(16),
+              disabled: props.busy === true,
+              onClick: props.onShutdown
+            }, t("shutdown")),
           healthLabel === null ? null : h("span", { className: "dshtu_state", "data-tone": tone },
             health.state === "running" && iconLoading !== null ? h(iconLoading, {}) : null,
             healthLabel)),
-        props.restart === null ? null : h("div", { className: "dshtu_meta", style: { marginTop: "10px" } },
-          props.restart.state === "pending" ? t("restartPending")
-            : props.restart.state === "done" ? t("restartDone")
-            : t("restartFailed").replace("{error}", props.restart.error))),
+        props.powerError === null || props.powerError === undefined ? null : h("div", { className: "dshtu_meta", style: { marginTop: "10px" } },
+          props.powerError.kind === "shutdown"
+            ? t("shutdownFailed").replace("{error}", props.powerError.error)
+            : t("restartFailed").replace("{error}", props.powerError.error))),
       h(HealthPanel, {
         key: "health",
         t: t,
@@ -1361,8 +1491,11 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     var _p = useState(null), configError = _p[0], setConfigError = _p[1];
     var _q = useState(0), configTick = _q[0], setConfigTick = _q[1];
     var _r = useState(null), health = _r[0], setHealth = _r[1];
-    var _s = useState(null), restart = _s[0], setRestart = _s[1];
+    var _s = useState(null), powerError = _s[0], setPowerError = _s[1];
     var _t = useState(false), confirming = _t[0], setConfirming = _t[1];
+    // The fullscreen power transition: `{ mode, phase, log }` or null when idle.
+    var _x = useState(null), power = _x[0], setPower = _x[1];
+    var _y = useState(false), confirmingShutdown = _y[0], setConfirmingShutdown = _y[1];
     var _u = useState(null), harness = _u[0], setHarness = _u[1];
     var _v = useState(null), bundles = _v[0], setBundles = _v[1];
     var _w = useState(false), refreshing = _w[0], setRefreshing = _w[1];
@@ -1541,9 +1674,17 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
      * had time to go down (the script waits two seconds), so the first success
      * cannot be the old process answering.
      */
+    /**
+     * Restart, watched from the browser. Once the old process is gone it cannot
+     * report anything, so the phases are what the page can actually observe: the
+     * request landed, the socket stopped answering, and finally a *different*
+     * instance answered (a new `startedAt`) — only then is the page reloaded.
+     */
     var doRestart = function () {
       setConfirming(false);
-      setRestart({ state: "pending" });
+      setPowerError(null);
+      var previousStartedAt = data === null || data === undefined ? null : data.startedAt;
+      setPower({ mode: "restart", phase: "prepare", log: null });
       fetch("/dsh-token-use/restart", { method: "POST", headers: { accept: "application/json" } })
         .then(function (res) {
           return res.json().then(function (json) {
@@ -1551,25 +1692,80 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
             return json;
           });
         })
-        .then(function () {
-          var attempts = 0;
+        .then(function (json) {
+          setPower({ mode: "restart", phase: "stopping", log: json.logFile || null });
           setTimeout(function () {
+            setPower({ mode: "restart", phase: "recovering", log: json.logFile || null });
+            var deadline = Date.now() + 90000;
             var timer = setInterval(function () {
-              attempts++;
+              if (Date.now() > deadline) {
+                clearInterval(timer);
+                setPower({ mode: "restart", phase: "timeout", log: json.logFile || null });
+                return;
+              }
               fetch("/dsh-token-use", { cache: "no-store" })
-                .then(function (res) {
-                  if (!res.ok) return;
-                  clearInterval(timer);
-                  setRestart({ state: "done" });
-                  setTimeout(function () { location.reload(); }, 800);
+                .then(function (res) { return res.ok ? res.json() : null; })
+                .then(function (next) {
+                  if (next === null) return;
+                  if (previousStartedAt === null || next.startedAt !== previousStartedAt) {
+                    clearInterval(timer);
+                    setPower({ mode: "restart", phase: "reloaded", log: null });
+                    setTimeout(function () { location.reload(); }, 900);
+                  }
                 })
                 .catch(function () {});
-              if (attempts > 90) clearInterval(timer);
-            }, 2000);
+            }, 1500);
           }, 6000);
         })
         .catch(function (err) {
-          setRestart({ state: "error", error: String(err) });
+          setPower(null);
+          setPowerError({ kind: "restart", error: String(err) });
+        });
+    };
+
+    /**
+     * Shutdown: the same transition, but it ends with the service staying down.
+     * A refused request is the success signal here, so the first failure (or the
+     * deadline) settles the overlay on 「服务已关闭」.
+     */
+    var doShutdown = function () {
+      setConfirmingShutdown(false);
+      setPowerError(null);
+      setPower({ mode: "shutdown", phase: "prepare", log: null });
+      fetch("/dsh-token-use/shutdown", { method: "POST", headers: { accept: "application/json" } })
+        .then(function (res) {
+          return res.json().then(function (json) {
+            if (!res.ok) throw new Error(json && json.error ? json.error : "http " + res.status);
+            return json;
+          });
+        })
+        .then(function (json) {
+          setPower({ mode: "shutdown", phase: "stopping", log: json.logFile || null });
+          setTimeout(function () {
+            setPower({ mode: "shutdown", phase: "recovering", log: json.logFile || null });
+            var deadline = Date.now() + 45000;
+            var timer = setInterval(function () {
+              fetch("/dsh-token-use", { cache: "no-store" })
+                .then(function (res) {
+                  if (!res.ok) throw new Error("down");
+                  return res.json();
+                })
+                .then(function () {
+                  if (Date.now() > deadline) {
+                    clearInterval(timer);
+                    setPower({ mode: "shutdown", phase: "stopped", log: null });
+                  }
+                })
+                .catch(function () {
+                  clearInterval(timer);
+                  setPower({ mode: "shutdown", phase: "stopped", log: null });
+                });
+            }, 1500);
+          }, 6000);
+        })
+        .catch(function (err) {
+          setPower(null);
+          setPowerError({ kind: "shutdown", error: String(err) });
         });
     };
 
@@ -1620,6 +1816,11 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
     }
     metaParts.push(t("updated").replace("{time}", fmtTime(data.updatedAt)));
     var scanState = data.scan && data.scan.error ? "error" : (data.scan && data.scan.done ? "done" : "ongoing");
+    /** The pid both confirmation dialogs name, when the config tab has loaded it. */
+    var pidText = function () {
+      return config === null || config === undefined || config.platform === undefined ? "?"
+        : String(config.platform.pid);
+    };
     var rangeItems = [
       { id: "day", label: t("filterDay") },
       { id: "month", label: t("filterMonth") },
@@ -1719,11 +1920,13 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
         config: config,
         error: configError,
         health: health,
-        restart: restart,
         harness: harness,
         bundles: bundles,
         onHealth: runHealth,
         onRestart: function () { setConfirming(true); },
+        onShutdown: function () { setConfirmingShutdown(true); },
+        busy: power !== null,
+        powerError: powerError,
         refreshing: refreshing,
         onRefresh: refreshConfig
       })];
@@ -1736,10 +1939,21 @@ window.__ModuleLoader__.load({ id: "dsh-token-use", factory: (require) => {
         title: t("restartTitle"),
         closeLabel: t("close"),
         footer: h("div", { className: "dshtu_modalFoot" },
-          h(button, { variant: "ghost", size: "sm", onClick: function () { setConfirming(false); } }, t("restartCancel")),
+          h(button, { variant: "ghost", size: "sm", onClick: function () { setConfirming(false); } }, t("cancel")),
           h(button, { variant: "primary", size: "sm", onClick: doRestart }, t("restartConfirm")))
       }, h("div", { className: "dshtu_modalBody" },
-        t("restartBody").replace("{pid}", config === null || config.platform === undefined ? "?" : String(config.platform.pid)))),
+        t("restartBody").replace("{pid}", pidText()))),
+      modal === null ? null : h(modal, {
+        open: confirmingShutdown,
+        onClose: function () { setConfirmingShutdown(false); },
+        title: t("shutdownTitle"),
+        closeLabel: t("close"),
+        footer: h("div", { className: "dshtu_modalFoot" },
+          h(button, { variant: "ghost", size: "sm", onClick: function () { setConfirmingShutdown(false); } }, t("cancel")),
+          h(button, { variant: "primary", size: "sm", className: "dshtu_dangerFill", onClick: doShutdown }, t("shutdownConfirm")))
+      }, h("div", { className: "dshtu_modalBody" },
+        t("shutdownBody").replace("{pid}", pidText()))),
+      h(PowerOverlay, { key: "power", t: t, power: power }),
       h("div", { className: "dshtu_foot" },
         stateDot === null ? null : h(stateDot, { state: scanState, size: 8 }),
         h("span", { className: "dshtu_meta" }, metaParts.join(" · "))));

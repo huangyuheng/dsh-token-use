@@ -13,7 +13,7 @@ DeepSeek Harness 实时 Token 用量与消费金额插件：安装后在 **设�
 - **概览**：金额与总量卡片、用量趋势图、**使用热力图**（近 12 个月，一格一天，可按「总计 / 金额」着色；悬停**即时**弹出当天「总计 / 金额 / 调用次数」，无原生 tooltip 的 1 秒延迟）。支持范围与模型筛选。
 - **模型统计**：所有模型的用量与金额明细表，支持范围查询（按天 / 按月 / 按年 / 时间段 / 全部）。
 - **项目统计**：所有项目的用量与金额明细表，同样支持范围查询。
-- **配置信息**：版本信息（`dsh-service`、`dsh`、`dsh-base`、本插件各自的已安装版本 vs 该版本**通道**（rc/alpha/stable）的最新版）、运行环境（平台版本、Node 版本、进程 PID、监听端口、已运行时长、`DSH_HOME`），以及**健康检查**与**一键重启**（带二次确认）。
+- **配置信息**：版本信息（`dsh-service`、`dsh`、`dsh-base`、本插件各自的已安装版本 vs 该版本**通道**（rc/alpha/stable）的最新版）、运行环境（平台版本、Node 版本、进程 PID、监听端口、已运行时长、`DSH_HOME`），以及**健康检查**、**一键重启**与**关机**（后两者都带二次确认）。
 - **健康检查（自检）**：分三段报告——**接口**（响应耗时、接口版本、历史扫描、定价数据、数据桶、数据更新时间）、**客户端 bundle**（逐个插件探测浏览器实际能否加载，用的是当前页面启动清单里带版本号的真实 URL）、**Harness 自检**（profile 完整性：`node_modules` / 锁文件 / 启动图；插件包完整性：入口文件、`dsh.bundle.patch`、前端 bundle 是否齐全；依赖解析；cordis 是否单实例同版本；服务端 bundle 与正在运行的 CLI 版本是否一致）。装完插件起不来时，这里会直接指出是哪个包、缺什么文件、怎么修。
 - **金额卡片**：按 DeepSeek 官方定价 × 本地用量实时估算消费金额（含高峰/空闲时段倍率），每张卡片（总量、趋势、按模型、按项目）都带金额字段。
 - **官方定价自动更新**：每天 **12:00** 抓取一次官方定价页并缓存到本地，重启不丢、断网可用内置快照兜底。
@@ -25,9 +25,13 @@ DeepSeek Harness 实时 Token 用量与消费金额插件：安装后在 **设�
 - **单位切换**：中文（亿 / 万 / 千）与英文（B / M / K）一键切换，记忆选择；tab 与单位切换栏常驻顶部，每个 tab 记忆上次停留位置。
 - **明细表**：按模型、按项目两张表（按日期维度由热力图承担），含金额列（悬停显示该模型单价）与总计列。
 
-### 一键重启
+### 一键重启 / 关机
 
-「配置信息」里的重启按钮会重启正在提供页面的 dsh web 进程：它按当前进程的启动命令（`process.argv` + 工作目录）原样重新拉起，因此自定义端口、参数都能保持；点击后需在弹窗二次确认，页面断开约 10-30 秒后自动重连并刷新。脚本写在 `$DSH_HOME/dsh-token-use/restart.sh`，日志在 `$DSH_HOME/dsh-token-use/restart.log`。若启动方式无法原样重放（拿不到可执行的入口），按钮会禁用并说明原因。
+「配置信息」底部的两个动作都走同一个**全屏过渡**：电源环 + 阶段文案（准备 → 正在结束进程 → 恢复中 → 新实例已就绪），占满页面、不遮挡宿主其它区域。
+
+- **一键重启**：重启正在提供页面的 dsh web 进程。它按当前进程的启动命令（`process.argv` + 工作目录）原样重新拉起，因此自定义端口、参数都能保持；点击后弹窗二次确认，页面断开约 10-30 秒，恢复后自动重新加载。脚本写在 `$DSH_HOME/dsh-token-use/restart.sh`，日志在 `$DSH_HOME/dsh-token-use/restart.log`。
+- **关机**：停止该进程且**不会自动拉起**，过渡结束时提示「可以关闭此页面了」，需要时在终端重新运行 `dsh web`。确认按钮是红色实心，避免误点。
+- 若启动方式无法原样重放（拿不到可执行的入口），重启按钮会禁用并说明原因。
 
 
 ## 金额是估算值
@@ -79,7 +83,7 @@ DeepSeek Harness 实时 Token 用量与消费金额插件：安装后在 **设�
 
 ### 配置信息
 
-版本信息（按通道对比最新版）、运行环境、健康检查与一键重启。
+版本信息（按通道对比最新版）、运行环境、健康检查、一键重启与关机（均带二次确认，动作时有全屏过渡动画）。
 
 ![配置信息 tab](assets/tab-config.jpg)
 
@@ -105,7 +109,7 @@ dsh plugin --profile web add /解压路径/dsh-token-use
 - 宿主侧 **不轮询、不写盘、不加定时器**（除了每天一次定价刷新）：通过 `session/event` 事件总线做 O(1) 增量累加（每条 `assistant/message` 一次字典加法 + 一次金额乘法）。
 - 启动时做 **一次性**历史重建：流式解压 `$DSH_HOME/sessions/**/session.jsonl.zstd`（`node:zlib` 原生 zstd），每读一个文件主动让出事件循环（`scheduler.yield()`），不阻塞会话处理；重建与实时事件用「会话 seq 水位」去重，任意先后顺序都不会重复计数。
 - **定价刷新**：每天 12:00 一次 HTTPS GET（15 秒超时，失败 1 小时后重试），结果写入 `$DSH_HOME/dsh-token-use/pricing.json`（原子替换，最多保留 30 份快照）；进程重启时同步读缓存，不重复联网；联网失败自动退回内置快照，面板照常显示。
-- 只暴露四个只读/受控接口（仅回环可访问，内存快照，`no-store`）：`GET /dsh-token-use` 数据快照、`GET /dsh-token-use/config` 版本与运行环境、`GET /dsh-token-use/health` Harness 自检、`POST /dsh-token-use/restart` 重启服务（需前端二次确认）。
+- 只暴露五个只读/受控接口（仅回环可访问，内存快照，`no-store`）：`GET /dsh-token-use` 数据快照、`GET /dsh-token-use/config` 版本与运行环境、`GET /dsh-token-use/health` Harness 自检、`POST /dsh-token-use/restart` 重启服务、`POST /dsh-token-use/shutdown` 关机（后两个都需前端二次确认，且不接受 GET）。
 - **自检怎么探**：客户端 bundle 用当前页面启动清单里的 `rev` 拉真实 URL（插件 URL 带构建版本号，只有启动清单拼得对）；Harness 自检读 profile 目录、按 `exports["."]` / `exports["./client"]` / `main` 找真实入口、从各插件目录向上解析 `@deepseek-ai/cordis` 判断是否重复——全程只读，不加载也不执行被检查的插件。报告里只有结构化字段与路径/版本，文案由前端按语言渲染。
 - **版本检查**：`/config` 读 npm registry 的精简 packument（`versions` + `dist-tags`），按**当前版本所属通道**（rc / alpha / stable）取该通道最高版来对比——`@deepseek-ai/dsh-web-app` 的 `latest` 标签长期停在 `0.0.1-rc.1`，按通道比较才不会误报。结果缓存 6 小时，写在 `$DSH_HOME/dsh-token-use/versions.json`。
 
@@ -125,6 +129,8 @@ curl http://127.0.0.1:3080/dsh-token-use/config
 curl http://127.0.0.1:3080/dsh-token-use/health
 # 重启服务（配置信息 tab 的按钮；2 秒后断开并原样拉起）
 curl -X POST http://127.0.0.1:3080/dsh-token-use/restart
+# 关机（配置信息 tab 的按钮；停掉且不再拉起）
+curl -X POST http://127.0.0.1:3080/dsh-token-use/shutdown
 ```
 
 响应里每个桶都带 `cost`（估算金额），`pricing` 是当前价目表、抓取时间与下次刷新时间，`modelPricing` 是各模型匹配到的单价或未计价原因；`trend` 覆盖最近 366 天（趋势图取尾部 7/30/90 天，热力图用整段）。
