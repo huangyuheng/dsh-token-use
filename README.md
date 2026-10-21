@@ -170,7 +170,7 @@ pnpm run build        # 重新生成 client/client.js（= 精简 ECharts + clien
 
 | 维度 | 说明 |
 | --- | --- |
-| 运行环境 | 需要 **dsh web ≥ 0.1.0-rc.6**（设置侧边栏 `settings.section` 槽位）。宿主侧只用 Node 内置模块；zstd 解压依赖 `node:zlib`（Node ≥ 22.15 内置，dsh 自身要求 ^22.19 \|\| >=24，故必然满足）。 |
+| 运行环境 | 需要 **dsh web ≥ 0.1.0-rc.6**（设置侧边栏 `settings.section` 槽位；`package.json` 的 `engines.dsh` 已声明 `>=0.1.0-rc.6`，插件市场与 AxzoStore 都据此显示并校验宿主要求）。宿主侧只用 Node 内置模块；zstd 解压依赖 `node:zlib`（Node ≥ 22.15 内置，dsh 自身要求 ^22.19 \|\| >=24，故必然满足）。 |
 | 数据目录 | 按 `$DSH_HOME`（环境变量，缺省 `~/.dsh`）解析，与 dsh 官方 `dsh-home-paths` 规则一致；自定义 home 同样有效。历史用量**只读**；唯一写入的是定价缓存 `$DSH_HOME/dsh-token-use/pricing.json`（原子替换，可用 `pricing.enabled: false` 完全关闭联网与写盘）。 |
 | 设置导航图标 | 应用按 section id 硬编码导航图标，未知 id（含本插件与插件市场）都回退成同一个齿轮，槽位没有 icon 选项。插件用「结构选择器 + mask」把自己的柱状图图标画在齿轮位置：只依赖自身 `label` 里的标记类名，不依赖应用 CSS 模块的哈希类名；若应用改版导致结构变化，选择器失配即回退为默认齿轮（不会出现两个图标），功能不受影响。 |
 | 会话格式 | 同时支持 `session.jsonl[.zstd]`（多帧 zstd，含 checksum）、带版本号的新一代 `session.v<N>.jsonl[.zstd]`（dsh 迁移后会与旧文件并存），以及明文 `.jsonl`；同一会话**只读最高版本那一代**，不会重复计数；`.bak`/`.corrupt-*`/`session.lock` 自动跳过，个别损坏帧只计入 `scan.skipped`。 |
